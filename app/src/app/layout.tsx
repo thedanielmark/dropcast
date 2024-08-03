@@ -13,7 +13,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-primary' });
 
 export const metadata: Metadata = {
   title: 'dropify-app',
-  description: "Dropify is a web3 airdrop management platform."
+  description: 'Dropify is a web3 airdrop management platform.'
 };
 
 interface RootLayoutProps {
@@ -25,9 +25,9 @@ const RootLayout = ({ children }: RootLayoutProps) => {
     <html lang="en">
       <body className={cn(inter.variable, 'font-primary')} suppressHydrationWarning>
         <MainProvider>
-            <MainLayout>
-              <main>{children}</main>
-            </MainLayout>
+          <MainLayout>
+            <main>{children}</main>
+          </MainLayout>
         </MainProvider>
       </body>
     </html>
