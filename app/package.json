@@ -23,6 +23,8 @@
   "packageManager": "pnpm@9.1.1+sha256.9551e803dcb7a1839fdf5416153a844060c7bce013218ce823410532504ac10b",
   "dependencies": {
     "@auth0/nextjs-auth0": "^3.5.0",
+    "@headlessui/react": "^2.1.2",
+    "@heroicons/react": "^2.1.5",
     "@t3-oss/env-nextjs": "0.11.0",
     "clsx": "2.1.1",
     "next": "14.2.5",
