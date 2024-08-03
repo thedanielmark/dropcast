@@ -1,0 +1,34 @@
+name: Jest Check
+
+on:
+  push:
+    branches:
+      - production
+      - staging
+      - dev
+      - feat/*
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  jest-check:
+    runs-on: ubuntu-latest
+    env:
+      SKIP_ENV_VALIDATION: ${{ secrets.SKIP_ENV_VALIDATION }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8.10.2
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: pnpm install
+      - name: Run tests
+        run: pnpm test:ci
+        env:
+          CI: true
