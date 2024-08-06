@@ -45,10 +45,12 @@ contract DropifyCoreMock {
     mapping(uint256=>mapping(uint256=>bool)) public nullifiers;
     uint256 public aidropIds;
     address public owner;
+    address vaultImplementation;
     
-    constructor(){
+    constructor(address vaultImplementationAddress){
         aidropIds = 0;
         owner = msg.sender;
+        vaultImplementation = vaultImplementationAddress;
     }
 
     event AirdropCreated(uint256 airdropId, uint256 chain, uint256 attestationId, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);

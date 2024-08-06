@@ -36,6 +36,13 @@ Contracts for Dropify.
     3. Makes on chain attestation
     4. If cross chain, send a cross chain transaction
 
+## Deploy Order
+
+1. Deploy Vault Implementation
+2. Deploy Crosschain contracts
+3. Deploy Core
+4. Initialize Crosschain Contracts with core
+
 ## Contributors
 
 - Gabriel - Blockchain Engineer & Architect
