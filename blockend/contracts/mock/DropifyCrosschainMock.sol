@@ -5,13 +5,12 @@ pragma solidity ^0.8.0;
 
 
 error NotOwner(address caller);
-error WorldCoinVerificationFailed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, uint256[8] proof);
-error HumanAlreadyClaimed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, uint256[8] proof);
+error WorldCoinVerificationFailed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, bytes proof);
+error HumanAlreadyClaimed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, bytes proof);
 
-contract DropifyCore {
+contract DropifyCrosschainMock {
 
     struct CreateAirdropParams{
-        uint256 chain;
         address tokenAddress;
         uint256 tokenAmount;
         uint256 tokensPerClaim;
@@ -45,11 +44,14 @@ contract DropifyCore {
     mapping(uint256=>mapping(uint256=>bool)) public nullifiers;
     uint256 public aidropIds;
     address public owner;
+    uint256 public chainId;
 
-    constructor(){
+    constructor(uint256 _chainId){
         aidropIds = 0;
         owner = msg.sender;
+        chainId = _chainId;
     }
+
 
     event AirdropCreated(uint256 airdropId, uint256 chain, uint256 attestationId, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
     event AidropClaimed(uint256 airdropId, uint256 attestationId, address  claimerAddress, uint256 nullifierHash, uint256 amountClaimed);
@@ -65,7 +67,6 @@ contract DropifyCore {
     function createAirdrop(CreateAirdropParams memory params, MockParams memory mockParams) public{
         // TODO: Deploy a vault and update the state in Airdrop
 
-
         // TODO: Make an on-chain attestation and update the state in Aidrop
 
         emit AirdropCreated(aidropIds, params.chain, mockParams.createdAttestationId, mockParams.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
@@ -75,10 +76,8 @@ contract DropifyCore {
     function claimAirdrop(uint256 airdropId, address claimerAddress, uint256 amountClaimed, uint256 attestationId, Humanness memory humanness) public onlyOwner  {
         // TODO: Verify Worldcoin proof
 
-
         // TODO: Make an onchain attestation and update the state in Airdrop
         emit AidropClaimed(airdropId, attestationId, claimerAddress, humanness.nullifier, amountClaimed);
     }
-
 
 }

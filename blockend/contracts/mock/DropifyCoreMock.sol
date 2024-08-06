@@ -5,10 +5,10 @@ pragma solidity ^0.8.0;
 
 
 error NotOwner(address caller);
-error WorldCoinVerificationFailed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, uint256[8] proof);
-error HumanAlreadyClaimed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, uint256[8] proof);
+error WorldCoinVerificationFailed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, bytes proof);
+error HumanAlreadyClaimed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, bytes proof);
 
-contract DropifyCore {
+contract DropifyCoreMock {
 
     struct CreateAirdropParams{
         uint256 chain;
@@ -45,6 +45,8 @@ contract DropifyCore {
     mapping(uint256=>mapping(uint256=>bool)) public nullifiers;
     uint256 public aidropIds;
     address public owner;
+
+    
 
     constructor(){
         aidropIds = 0;
