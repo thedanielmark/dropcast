@@ -7,14 +7,25 @@ error NotOwner(address caller);
 error WorldCoinVerificationFailed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, bytes proof);
 error HumanAlreadyClaimed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, bytes proof);
 error NotEnoughCrosschainFee(uint256 balance, uint256 fee);
+error NotAuthorizedCrosschain(uint64 chain, address caller, bool isChainlink);
 
 contract DropifyCoreMock {
 
     struct CreateAirdropParams{
-        uint64 chain;
         address tokenAddress;
         uint256 tokenAmount;
         uint256 tokensPerClaim;
+        string metadata;
+    }
+
+    struct CrosshchainCreateAirdropParams{
+        uint256 localAirdropId;
+        uint256 tokenAmount;
+        uint256 tokensPerClaim;
+        address tokenAddress;
+        address vaultAddress;
+        address creator;
+        uint64 chain;
         string metadata;
     }
 
@@ -35,6 +46,7 @@ contract DropifyCoreMock {
     }
 
      struct Airdrop {
+        uint256 localAirdropId;
         address creator;
         address tokenAddress;
         uint256 tokenAmount;
@@ -51,9 +63,11 @@ contract DropifyCoreMock {
         bytes proof;
     }
 
+    uint64 public CHAIN=84532;
     mapping(uint256 => Airdrop) public airdrops;
     mapping(uint256=>mapping(uint256=>bool)) public nullifiers;
     uint256 public aidropIds;
+    uint256 public localAirdropIds;
     address public owner;
     address public vaultImplementation;
     address public ccipRouter;
@@ -81,14 +95,30 @@ contract DropifyCoreMock {
         _;
     }
 
+    modifier onlyAuthorizedCrosschain(address _caller, uint64 _chain, bool isChainlink){
+        if(isChainlink){
+            if(chainlinkCcipDeployments[_chain] != _caller) revert NotAuthorizedCrosschain(_chain, _caller, isChainlink);
+        }else{
+            if(hyperlaneDeployments[_chain] != _caller) revert NotAuthorizedCrosschain(_chain, _caller, isChainlink);
+        }
+        _;
+    }
+
+
     // TODO: Delete the Mock params
     function createAirdrop(CreateAirdropParams memory params, MockParams memory mockParams) public{
         // TODO: Deploy a vault and update the state in Airdrop
 
         // TODO: Make an on-chain attestation and update the state in Aidrop
 
-        emit AirdropCreated(aidropIds, params.chain, mockParams.createdAttestationId, mockParams.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
+        emit AirdropCreated(aidropIds, CHAIN, mockParams.createdAttestationId, mockParams.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
         aidropIds++;
+    }
+
+    function receiveCreateAirdrop(address crossChainAddress, bool isChainlink, CrosshchainCreateAirdropParams memory params) public onlyAuthorizedCrosschain(crossChainAddress, params.chain, isChainlink) {
+        // TODO: Make an on-chain attestation and update the state in Aidrop 
+
+        emit AirdropCreated(params.localAirdropId, params.chain, params.localAirdropId, params.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
     }
 
     function claimAirdrop(uint256 airdropId, address claimerAddress, uint256 amountClaimed, uint256 attestationId, Humanness memory humanness) public onlyOwner  {
@@ -97,6 +127,5 @@ contract DropifyCoreMock {
         // TODO: Make an onchain attestation and update the state in Airdrop
         emit AidropClaimed(airdropId, attestationId, claimerAddress, humanness.nullifier, amountClaimed);
     }
-
 
 }
