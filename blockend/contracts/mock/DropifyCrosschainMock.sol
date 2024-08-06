@@ -23,7 +23,7 @@ contract DropifyCrosschainMock {
         address vaultAddress;
     }
 
-     struct Airdrop {
+    struct Airdrop {
         address creator;
         address tokenAddress;
         uint256 tokenAmount;
@@ -46,15 +46,17 @@ contract DropifyCrosschainMock {
     address public owner;
     uint256 public chainId;
 
+    address public crosschainAddress;
+
     constructor(uint256 _chainId){
         aidropIds = 0;
         owner = msg.sender;
         chainId = _chainId;
+        crosschainAddress=address(0);
     }
 
-
-    event AirdropCreated(uint256 airdropId, uint256 chain, uint256 attestationId, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
-    event AidropClaimed(uint256 airdropId, uint256 attestationId, address  claimerAddress, uint256 nullifierHash, uint256 amountClaimed);
+    event AirdropCrosschainCreated(uint256 localAirdropId, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
+    event AidropClaimed(uint256 airdropId, address claimerAddress, uint256 amountClaimed);
 
     modifier onlyOwner{
         if(msg.sender != owner){
@@ -63,16 +65,21 @@ contract DropifyCrosschainMock {
         _;
     }
 
+    function initalize(address _crosschainAddress) public{
+        crosschainAddress = _crosschainAddress;
+    }
+
     // TODO: Delete the Mock params
     function createAirdrop(CreateAirdropParams memory params, MockParams memory mockParams) public{
         // TODO: Deploy a vault and update the state in Airdrop
 
-        // TODO: Make an on-chain attestation and update the state in Aidrop
-
-        emit AirdropCreated(aidropIds, params.chain, mockParams.createdAttestationId, mockParams.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
+        // TODO: Send a crosschain Transaction
+        emit AirdropCrosschainCreated(aidropIds, mockParams.createdAttestationId, mockParams.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
         aidropIds++;
     }
 
+
+    function receiveClaimAirdrop(uint256 ai)
     function claimAirdrop(uint256 airdropId, address claimerAddress, uint256 amountClaimed, uint256 attestationId, Humanness memory humanness) public onlyOwner  {
         // TODO: Verify Worldcoin proof
 

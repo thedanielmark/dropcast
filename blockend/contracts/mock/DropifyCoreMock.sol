@@ -45,9 +45,7 @@ contract DropifyCoreMock {
     mapping(uint256=>mapping(uint256=>bool)) public nullifiers;
     uint256 public aidropIds;
     address public owner;
-
     
-
     constructor(){
         aidropIds = 0;
         owner = msg.sender;
