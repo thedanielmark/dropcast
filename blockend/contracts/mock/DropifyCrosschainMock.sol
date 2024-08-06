@@ -98,7 +98,6 @@ contract DropifyCrosschainMock {
     function receiveClaimAirdrop(address _caller, uint64 _chain, CrosschainClaimParams memory params) public onlyAuthorizedCrosschain(msg.sender, chain){ 
 
         // TODO: Disperse the funds from the vault to the claimer
-
         emit AidropClaimed(params.localAirdropId, params.claimer, params.nullifer, params.claimAttestationId, airdrops[params.localAirdropId].tokensPerClaim);
     }
 
