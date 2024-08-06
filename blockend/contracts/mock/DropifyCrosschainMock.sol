@@ -7,6 +7,7 @@ pragma solidity ^0.8.0;
 error NotOwner(address caller);
 error WorldCoinVerificationFailed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, bytes proof);
 error HumanAlreadyClaimed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, bytes proof);
+error NotAuthorizedCrosschain(uint64 chain, address caller);
 
 contract DropifyCrosschainMock {
 
@@ -17,8 +18,16 @@ contract DropifyCrosschainMock {
         string metadata;
     }
 
+    struct CrosschainClaimParams{
+        uint256 localAirdropId;
+        address claimer;
+        uint256 claimAttestationId;
+        uint256 nullifer;
+    }
+
     // TODO: Delete the Mock params
     struct MockParams{
+        bytes32 crosschainMessageId;
         uint256 createdAttestationId;
         address vaultAddress;
     }
@@ -44,19 +53,20 @@ contract DropifyCrosschainMock {
     mapping(uint256=>mapping(uint256=>bool)) public nullifiers;
     uint256 public aidropIds;
     address public owner;
-    uint256 public chainId;
+    uint64 public chain;
 
     address public crosschainAddress;
+    uint64 public crosschainSelector;
 
-    constructor(uint256 _chainId){
+    constructor(uint64 _chain){
         aidropIds = 0;
         owner = msg.sender;
-        chainId = _chainId;
+        chain = _chain;
         crosschainAddress=address(0);
     }
 
-    event AirdropCrosschainCreated(uint256 localAirdropId, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
-    event AidropClaimed(uint256 airdropId, address claimerAddress, uint256 amountClaimed);
+    event AirdropCrosschainCreated(uint256 localAirdropId, bytes32 crosschainMessageId, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
+    event AidropClaimed(uint256 airdropId, address claimerAddress, uint256 nullifierHash, uint256 claimAttestaionId, uint256 amountClaimed);
 
     modifier onlyOwner{
         if(msg.sender != owner){
@@ -65,26 +75,31 @@ contract DropifyCrosschainMock {
         _;
     }
 
-    function initalize(address _crosschainAddress) public{
+    modifier onlyAuthorizedCrosschain(address _caller, uint64 _chain){
+       if(crosschainAddress != _caller || crosschainSelector != _chain) revert NotAuthorizedCrosschain(_chain, _caller);
+        _;
+    }
+
+    function initalize(address _crosschainAddress, uint64 _crosschainSelector) public onlyOwner{
         crosschainAddress = _crosschainAddress;
+        crosschainSelector = _crosschainSelector;
     }
 
     // TODO: Delete the Mock params
     function createAirdrop(CreateAirdropParams memory params, MockParams memory mockParams) public{
         // TODO: Deploy a vault and update the state in Airdrop
 
-        // TODO: Send a crosschain Transaction
-        emit AirdropCrosschainCreated(aidropIds, mockParams.createdAttestationId, mockParams.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
+        // TODO: Send a crosschain transaction
+        emit AirdropCrosschainCreated(aidropIds, mockParams.crosschainMessageId, mockParams.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
         aidropIds++;
     }
 
 
-    function receiveClaimAirdrop(uint256 ai)
-    function claimAirdrop(uint256 airdropId, address claimerAddress, uint256 amountClaimed, uint256 attestationId, Humanness memory humanness) public onlyOwner  {
-        // TODO: Verify Worldcoin proof
+    function receiveClaimAirdrop(address _caller, uint64 _chain, CrosschainClaimParams memory params) public onlyAuthorizedCrosschain(msg.sender, chain){ 
 
-        // TODO: Make an onchain attestation and update the state in Airdrop
-        emit AidropClaimed(airdropId, attestationId, claimerAddress, humanness.nullifier, amountClaimed);
+        // TODO: Disperse the funds from the vault to the claimer
+
+        emit AidropClaimed(params.localAirdropId, params.claimer, params.nullifer, params.claimAttestationId, airdrops[params.localAirdropId].tokensPerClaim);
     }
 
 }

@@ -25,7 +25,6 @@ contract DropifyCoreMock {
         address tokenAddress;
         address vaultAddress;
         address creator;
-        uint64 chain;
         string metadata;
     }
 
@@ -45,7 +44,7 @@ contract DropifyCoreMock {
         uint64[] hyperlaneChains;
     }
 
-     struct Airdrop {
+    struct Airdrop {
         uint256 localAirdropId;
         address creator;
         address tokenAddress;
@@ -104,7 +103,6 @@ contract DropifyCoreMock {
         _;
     }
 
-
     // TODO: Delete the Mock params
     function createAirdrop(CreateAirdropParams memory params, MockParams memory mockParams) public{
         // TODO: Deploy a vault and update the state in Airdrop
@@ -116,10 +114,10 @@ contract DropifyCoreMock {
     }
 
     // TODO: Remove the onlyAuthroizedCrosschain modifier comment
-    function receiveCreateAirdrop(address crossChainAddress, bool isChainlink, CrosshchainCreateAirdropParams memory params) public /*onlyAuthorizedCrosschain(crossChainAddress, params.chain, isChainlink)*/ {
+    function receiveCreateAirdrop(address crossChainAddress, bool isChainlink, uint64 _chain, CrosshchainCreateAirdropParams memory params) public /*onlyAuthorizedCrosschain(crossChainAddress, params.chain, isChainlink)*/ {
         // TODO: Make an on-chain attestation and update the state in Aidrop 
 
-        emit AirdropCreated(params.localAirdropId, params.chain, params.localAirdropId, params.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
+        emit AirdropCreated(params.localAirdropId, _chain, params.localAirdropId, params.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
     }
 
     function claimAirdrop(uint256 airdropId, address claimerAddress, uint256 amountClaimed, uint256 attestationId, Humanness memory humanness) public onlyOwner  {
