@@ -9,13 +9,13 @@ This is a monorepo containing the front-end and contracts for Dropify.
 
 ## Gabriel Tasks
 
-1. Complete and Depoly Mocks
-2. Add test scripts and buttons in FE
-3. Add worldcoin verification in frontend
-4. Test Chainlink CCIP
-5. Test EAS attestations and implement Vaults
-6. Test Hyperlane
-7. Test Full flow for all chains
+1. Complete and Depoly Mocks - IN PROGRESS
+2. Add test scripts and buttons in FE - PENDING
+3. Add worldcoin verification in frontend - PENDING
+4. Test Chainlink CCIP - PENDING
+5. Test EAS attestations and implement Vaults - PENDING
+6. Test Hyperlane - PENDING
+7. Test Full flow for all chains - PENDING
 
 ## Daniel Tasks
 
