@@ -4,15 +4,12 @@ Contracts for Dropify.
 
 ## Tech
 
-1. Chainlink
+1. Chainlink and Hyperlane
     a. Cross Chain Transactions
-    b. Decentralized Compute
 2. EAS
     a. On-chain verifiable attestations.
 3. Worldcoin
     a. Proof of humaness
-4. Superform
-    a. Yield generating vaults
 5. Optimism, Base, Metal L2, Ethereum, Arbitrum, Avalanche, Polygon
     a. Deployments
 6. Goldsky
@@ -31,13 +28,13 @@ Contracts for Dropify.
         1. Own Token (NFT or ERC20)
         2. Follow Farcaster account
         3. Have minimum Farcaster followers criteria
-    4. Send crosschain transaction to base (only for chains other than base)
-    5. Send funds to super form vault
+    4. Send crosschain transaction to base (only for chains other than base)  
+    5. Send funds to a vault
 2. Claim airdrop (give required signatures, and world id proof)
     1. Verify world id proof
-    2. Trigger chainlink functions
-    3. If everything all right, release tokens
-    4. Makes on chain attestation
+    2. Make other verifications off-chain and allow call to this function only by an authorized EOA
+    3. Makes on chain attestation
+    4. If cross chain, send a cross chain transaction
 
 ## Contributors
 
