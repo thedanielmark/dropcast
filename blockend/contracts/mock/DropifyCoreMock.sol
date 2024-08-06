@@ -115,7 +115,8 @@ contract DropifyCoreMock {
         aidropIds++;
     }
 
-    function receiveCreateAirdrop(address crossChainAddress, bool isChainlink, CrosshchainCreateAirdropParams memory params) public onlyAuthorizedCrosschain(crossChainAddress, params.chain, isChainlink) {
+    // TODO: Remove the onlyAuthroizedCrosschain modifier comment
+    function receiveCreateAirdrop(address crossChainAddress, bool isChainlink, CrosshchainCreateAirdropParams memory params) public /*onlyAuthorizedCrosschain(crossChainAddress, params.chain, isChainlink)*/ {
         // TODO: Make an on-chain attestation and update the state in Aidrop 
 
         emit AirdropCreated(params.localAirdropId, params.chain, params.localAirdropId, params.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
