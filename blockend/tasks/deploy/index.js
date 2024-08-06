@@ -1,1 +1,2 @@
-exports.deployPrivCast = require("./deployPrivCast.js");
+exports.deplo
+exports.mocks=require("./mocks")
