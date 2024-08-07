@@ -1,23 +1,13 @@
-const app = new Frog<{ State: State }>({
-  title: 'Private Poll',
+/** @jsxImportSource frog/jsx */
+import { Frog } from 'frog';
+import { devtools } from 'frog/dev';
+import { handle } from 'frog/next';
+import { serveStatic } from 'frog/serve-static';
+
+const app = new Frog({
+  title: 'Dropfify',
   assetsPath: '/',
   basePath: '/api',
-  initialState: {
-    question: '',
-    options: {
-      a: '',
-      b: '',
-      c: '',
-      d: ''
-    },
-    optionsCreated: 0,
-    theme: 0,
-    validity: {
-      day: 0,
-      hours: 0,
-      minutes: 0
-    }
-  },
   imageOptions: {
     fonts: [{ name: 'Krona One', source: 'google' }]
   }
@@ -37,3 +27,8 @@ app.composerAction(
     imageUrl: 'https://dropify.thedanielmark.app/logo.png'
   }
 );
+
+devtools(app, { serveStatic });
+
+export const GET = handle(app);
+export const POST = handle(app);
