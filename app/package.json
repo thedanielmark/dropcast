@@ -15,7 +15,8 @@
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "test:ci": "jest --ci",
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "deploy": "vercel"
   },
   "engines": {
     "node": ">=18.20.2"
@@ -27,6 +28,8 @@
     "@heroicons/react": "^2.1.5",
     "@t3-oss/env-nextjs": "0.11.0",
     "clsx": "2.1.1",
+    "frog": "^0.15.9",
+    "hono": "^4.5.4",
     "next": "14.2.5",
     "openai": "^4.54.0",
     "react": "18.3.1",

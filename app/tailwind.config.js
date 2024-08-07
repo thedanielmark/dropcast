@@ -1,16 +1,22 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  mode: 'jit',
-  content: ['./src/app/**/*.{js,ts,jsx,tsx}', './src/components/**/*.{js,ts,jsx,tsx}'],
+  darkMode: ['class'],
+  content: [
+    './pages/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}'
+  ],
+  prefix: '',
   theme: {
-    extend: {
-      fontFamily: {
-        primary: ['var(--font-primary)']
+    container: {
+      center: true,
+      padding: '2rem',
+      screens: {
+        '2xl': '1400px'
       }
-    }
-  },
-  variants: {
+    },
     extend: {}
   },
-  plugins: [require('tailwind-scrollbar')]
+  plugins: []
 };

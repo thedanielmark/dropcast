@@ -1,15 +1,10 @@
 import '@/styles/globals.css';
 
 import { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import { ReactNode } from 'react';
 
 import { MainProvider } from '@/components/providers/MainProvider';
 import { MainLayout } from '@/components/templates/MainLayout';
-
-import { cn } from '@/lib/utils';
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-primary' });
 
 export const metadata: Metadata = {
   title: 'dropify-app',
@@ -23,7 +18,7 @@ interface RootLayoutProps {
 const RootLayout = ({ children }: RootLayoutProps) => {
   return (
     <html lang="en">
-      <body className={cn(inter.variable, 'font-primary')} suppressHydrationWarning>
+      <body className="bg-gray-900 text-white" suppressHydrationWarning>
         <MainProvider>
           <MainLayout>
             <main>{children}</main>
