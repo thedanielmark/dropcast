@@ -1,3 +1,5 @@
 .env.enc
 node_modules
 .env
+
+build
