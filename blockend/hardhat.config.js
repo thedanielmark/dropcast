@@ -46,14 +46,23 @@ module.exports = {
     apiKey: {
       sepolia: networks.ethereumSepolia.verifyApiKey,
       baseSepolia: networks.baseSepolia.verifyApiKey,
+      arbitrumSepolia: networks.arbitrumSepolia.verifyApiKey,
     },
     customChains: [
       {
         network: "baseSepolia",
         chainId: networks.baseSepolia.chainId,
         urls: {
-          apiURL: "https://api-baseSepolia.basescan.org/api/",
-          browserURL: "https://baseSepolia.basescan.org/",
+          apiURL: "https://api-sepolia.basescan.org/api",
+          browserURL: "https://sepolia.basescan.org/",
+        },
+      },
+      {
+        network: "arbitrumSepolia",
+        chainId: networks.arbitrumSepolia.chainId,
+        urls: {
+          apiURL: "https://api-sepolia.arbiscan.io/api/",
+          browserURL: "https://sepolia.arbiscan.io/",
         },
       },
     ],

@@ -36,6 +36,19 @@ const networks = {
     nativeCurrencySymbol: "ETH",
     privCastDeployment: "",
   },
+  arbitrumSepolia: {
+    url:
+      "https://arb-sepolia.g.alchemy.com/v2/" +
+      process.env.ALCHEMY_API_KEY_BASE,
+    gasPrice: undefined,
+    nonce: undefined,
+    accounts,
+    verifyApiKey: process.env.ARBISCAN_API_KEY || "UNSET",
+    chainId: 421614,
+    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
+    nativeCurrencySymbol: "ETH",
+    privCastDeployment: "",
+  },
 };
 
 module.exports = {
