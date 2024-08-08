@@ -9,7 +9,7 @@ This is a monorepo containing the front-end and contracts for Dropify.
 
 ## Gabriel Tasks
 
-1. Complete and Depoly Mocks - IN PROGRESS
+1. Complete and Depoly Mocks - DONE
 2. Add test scripts and buttons in FE - PENDING
 3. Add worldcoin verification in frontend - PENDING
 4. Test Chainlink CCIP - PENDING
