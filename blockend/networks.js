@@ -2,22 +2,17 @@ require("@chainlink/env-enc").config();
 
 const DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS = 3;
 
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
-
-const SECOND_PRIVATE_KEY = process.env.SECOND_PRIVATE_KEY;
+const PRIVATE_KEY = process.env.TEST_PRIVATE_KEY;
 
 const accounts = [];
 if (PRIVATE_KEY) {
   accounts.push(PRIVATE_KEY);
 }
-if (SECOND_PRIVATE_KEY) {
-  accounts.push(SECOND_PRIVATE_KEY);
-}
 
 const networks = {
   ethereumSepolia: {
     url:
-      "https://eth-baseSepolia.g.alchemy.com/v2/" +
+      "https://eth-sepolia.g.alchemy.com/v2/" +
       process.env.ALCHEMY_API_KEY_SEPOLIA,
     gasPrice: undefined,
     nonce: undefined,
@@ -30,7 +25,7 @@ const networks = {
   },
   baseSepolia: {
     url:
-      "https://base-baseSepolia.g.alchemy.com/v2/" +
+      "https://base-sepolia.g.alchemy.com/v2/" +
       process.env.ALCHEMY_API_KEY_BASE,
     gasPrice: undefined,
     nonce: undefined,
