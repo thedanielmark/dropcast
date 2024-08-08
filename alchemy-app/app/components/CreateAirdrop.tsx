@@ -1,6 +1,14 @@
 import { PinataSDK } from "pinata";
 import { title } from "process";
 import { useState } from "react";
+import {
+  type UseSendUserOperationResult,
+  useSendUserOperation,
+  useSmartAccountClient,
+} from "@account-kit/react";
+import uploadToPinata from "../utils/uploadToPinata";
+import { CORE_ADDRESS } from "../utils/constants";
+import getApproveTokensData from "../utils/getApproveTokensData";
 interface Task {
   type: number;
   address: string;
@@ -19,9 +27,9 @@ interface Status {
 
 export default function CreateAirdrop() {
   const [contractAddress, setContractAddress] = useState("");
-  const [tokenAmount, setTokenAmount] = useState<number | "">("");
-  const [tokensPerClaim, setTokensPerClaim] = useState<number | "">("");
-
+  const [tokenAmount, setTokenAmount] = useState<string>("");
+  const [tokensPerClaim, setTokensPerClaim] = useState<string>("");
+  const { client } = useSmartAccountClient({ type: "LightAccount" });
   const [metadata, setMetadata] = useState<Metadata>({
     title: "",
     description: "",
@@ -29,6 +37,29 @@ export default function CreateAirdrop() {
   });
   const [metadataUrl, setMetadataUrl] = useState<string>("");
   const [status, setStatus] = useState<Status[]>([]);
+
+  const { sendUserOperation, isSendingUserOperation } = useSendUserOperation({
+    client,
+    waitForTxn: true,
+    onSuccess: ({ hash, request }) => {
+      setStatus([
+        ...status,
+        {
+          error: false,
+          message: `Transaction ${hash} sent successfully`,
+        },
+      ]);
+    },
+    onError: (error) => {
+      setStatus([
+        ...status,
+        {
+          error: true,
+          message: `Error sending transaction: ${error}`,
+        },
+      ]);
+    },
+  });
   return (
     <div>
       <p className="text-2xl font-semibold pb-12">Create Airdrop</p>
@@ -60,19 +91,19 @@ export default function CreateAirdrop() {
         <div>
           <p>Token Amount</p>
           <input
-            type="number"
+            type="text"
             className="input"
             value={tokenAmount}
-            onChange={(e) => setTokenAmount(parseInt(e.target.value))}
+            onChange={(e) => setTokenAmount(e.target.value)}
           />
         </div>
         <div>
           <p>Tokens Per Claim</p>
           <input
-            type="number"
+            type="text"
             className="input"
             value={tokensPerClaim}
-            onChange={(e) => setTokensPerClaim(parseInt(e.target.value))}
+            onChange={(e) => setTokensPerClaim(e.target.value)}
           />
         </div>
       </div>
@@ -148,36 +179,35 @@ export default function CreateAirdrop() {
       <button
         className="block mx-auto btn btn-primary mt-6"
         onClick={async () => {
-          const pinata = new PinataSDK({
-            pinataJwt: process.env.NEXT_PUBLIC_PINATA_JWT!,
-            pinataGateway: "amethyst-impossible-ptarmigan-368.mypinata.cloud",
-          });
-          console.log("METADATA");
-          console.log(metadata);
-          const upload = await pinata.upload.json(metadata);
-          console.log("METADATA URL");
-          console.log(
-            "https://amethyst-impossible-ptarmigan-368.mypinata.cloud/ipfs/" +
-              upload.IpfsHash +
-              "?pinataGatewayToken=" +
-              process.env.NEXT_PUBLIC_PINATA_GATEWAY_KEY
-          );
+          const ipfsHash = await uploadToPinata(metadata);
           setMetadataUrl(
             "https://amethyst-impossible-ptarmigan-368.mypinata.cloud/ipfs/" +
-              upload.IpfsHash +
+              ipfsHash +
               "?pinataGatewayToken=" +
               process.env.NEXT_PUBLIC_PINATA_GATEWAY_KEY
           );
           setStatus([
             {
               error: false,
-              message:
-                "Metadata uploaded successfully to IPFS: " + upload.IpfsHash,
+              message: "Metadata uploaded successfully to IPFS: " + ipfsHash,
             },
           ]);
+          const data = getApproveTokensData(
+            CORE_ADDRESS,
+            tokenAmount.toString()
+          );
+          console.log("DATA ", data);
+          sendUserOperation({
+            uo: {
+              target: contractAddress as `0x${string}`,
+              data: data,
+              value: BigInt("0"),
+            },
+          });
         }}
+        disabled={isSendingUserOperation}
       >
-        Approve Tokens
+        {isSendingUserOperation ? "Approving Tokens..." : "Approve Tokens"}
       </button>
       <button className="block mx-auto btn btn-primary my-6" onClick={() => {}}>
         Create Airdrop

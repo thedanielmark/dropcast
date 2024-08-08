@@ -16,7 +16,8 @@
     "next": "14.2.4",
     "pinata": "^0.1.10",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "viem": "^2.19.2"
   },
   "devDependencies": {
     "@types/node": "^20",
