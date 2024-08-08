@@ -9,6 +9,7 @@ import {
 import uploadToPinata from "../utils/uploadToPinata";
 import { CORE_ADDRESS } from "../utils/constants";
 import getApproveTokensData from "../utils/getApproveTokensData";
+import getCreateAirdropData from "../utils/getCreateAirdropData";
 interface Task {
   type: number;
   address: string;
@@ -207,9 +208,28 @@ export default function CreateAirdrop() {
         }}
         disabled={isSendingUserOperation}
       >
-        {isSendingUserOperation ? "Approving Tokens..." : "Approve Tokens"}
+        Approve Tokens
       </button>
-      <button className="block mx-auto btn btn-primary my-6" onClick={() => {}}>
+      <button
+        className="block mx-auto btn btn-primary my-6"
+        onClick={() => {
+          const data = getCreateAirdropData(
+            contractAddress as `0x${string}`,
+            tokenAmount,
+            tokensPerClaim,
+            metadataUrl
+          );
+          console.log("DATA ", data);
+          sendUserOperation({
+            uo: {
+              target: CORE_ADDRESS as `0x${string}`,
+              data: data,
+              value: BigInt("0"),
+            },
+          });
+        }}
+        disabled={isSendingUserOperation}
+      >
         Create Airdrop
       </button>
       {status.map((s, i) => (
