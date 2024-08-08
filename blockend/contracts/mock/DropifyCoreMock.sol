@@ -38,10 +38,6 @@ contract DropifyCoreMock {
         address vaultImplementation;
         address ccipRouter;
         address hyperlaneRouter;
-        address[] chainlinkCcipDeployments;
-        uint64[] chainlinkCcipChains;
-        address[] hyperlaneDeployments;
-        uint64[] hyperlaneChains;
     }
 
     struct Airdrop {
@@ -73,6 +69,8 @@ contract DropifyCoreMock {
     address public hyperlaneRouter;
     mapping(uint64=>address) public chainlinkCcipDeployments;
     mapping(uint64=>address) public hyperlaneDeployments;
+
+    bool public initialized;
     
     constructor(ConstructorParams memory _params){
         aidropIds = 0;
@@ -80,12 +78,15 @@ contract DropifyCoreMock {
         vaultImplementation = _params.vaultImplementation;
         ccipRouter = _params.ccipRouter;
         hyperlaneRouter = _params.hyperlaneRouter;
-        for(uint i=0; i<_params.chainlinkCcipDeployments.length; i++) chainlinkCcipDeployments[_params.chainlinkCcipChains[i]] = _params.chainlinkCcipDeployments[i];
-        for(uint i=0; i<_params.hyperlaneDeployments.length; i++) hyperlaneDeployments[_params.hyperlaneChains[i]] = _params.hyperlaneDeployments[i];
     }
 
     event AirdropCreated(uint256 airdropId, uint64 chain, uint256 attestationId, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
     event AidropClaimed(uint256 airdropId, uint256 attestationId, address  claimerAddress, uint256 nullifierHash, uint256 amountClaimed);
+
+    modifier onlyInitialized{
+        if(!initialized) revert("Contract not initialized");
+        _;
+    }
 
     modifier onlyOwner{
         if(msg.sender != owner){
@@ -103,8 +104,14 @@ contract DropifyCoreMock {
         _;
     }
 
+    function initalize(address[] _hyperlaneAddresses, uint64[] _hyperlaneSelectors, address[] _chainlinkAddresses, uint64[] _chainlinkSelectors) public onlyOwner{
+        for(uint i=0; i < _chainlinkAddresses.length; i++) _chainlinkAddresses[_chainlinkSelectors[i]] = _chainlinkAddresses[i];
+        for(uint i=0; i < _hyperlaneAddresses.length; i++) hyperlaneDeployments[_hyperlaneSelectors[i]] = _hyperlaneAddresses[i];
+        initialized=true;
+    }
+
     // TODO: Delete the Mock params
-    function createAirdrop(CreateAirdropParams memory params, MockParams memory mockParams) public{
+    function createAirdrop(CreateAirdropParams memory params, MockParams memory mockParams) public /*onlyInitialized*/{
         // TODO: Deploy a vault and update the state in Airdrop
 
         // TODO: Make an on-chain attestation and update the state in Aidrop
@@ -114,13 +121,13 @@ contract DropifyCoreMock {
     }
 
     // TODO: Remove the onlyAuthroizedCrosschain modifier comment
-    function receiveCreateAirdrop(address crossChainAddress, bool isChainlink, uint64 _chain, CrosshchainCreateAirdropParams memory params) public /*onlyAuthorizedCrosschain(crossChainAddress, params.chain, isChainlink)*/ {
+    function receiveCreateAirdrop(address crossChainAddress, bool isChainlink, uint64 _chain, CrosshchainCreateAirdropParams memory params) public /*onlyAuthorizedCrosschain(crossChainAddress, params.chain, isChainlink) onlyInitialized*/ {
         // TODO: Make an on-chain attestation and update the state in Aidrop 
 
         emit AirdropCreated(params.localAirdropId, _chain, params.localAirdropId, params.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
     }
 
-    function claimAirdrop(uint256 airdropId, address claimerAddress, uint256 amountClaimed, uint256 attestationId, Humanness memory humanness) public onlyOwner  {
+    function claimAirdrop(uint256 airdropId, address claimerAddress, uint256 amountClaimed, uint256 attestationId, Humanness memory humanness) public /*onlyOwner onlyInitialized*/ {
         // TODO: Verify Worldcoin proof
 
         // TODO: Make an onchain attestation and update the state in Airdrop

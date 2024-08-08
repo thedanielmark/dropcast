@@ -1,4 +1,4 @@
-exports.deployCore=require("./deployCore")
-exports.deployCrosschainMock=require("./deployCrosschainMock")
-exports.deployVaultImplementation=require("./deployVaultImplementation")
-exports.mocks=require("./mocks")
+exports.deployCore = require("./deployCore");
+exports.deployCrosschain = require("./deployCrosschain");
+exports.deployVaultImplementation = require("./deployVaultImplementation");
+exports.mocks = require("./mocks");

@@ -1,4 +1,4 @@
-const { networks } = require("../../networks");
+const { networks } = require("../../../networks");
 
 task("deploy-core-mock", "Deploys the DropifyCoreMock contract")
   .addOptionalParam(
@@ -13,8 +13,11 @@ task("deploy-core-mock", "Deploys the DropifyCoreMock contract")
     console.log("\n__Compiling Contracts__");
     await run("compile");
 
-    const dropifyCoreMockContractFactory = await ethers.getContractFactory("DropifyCoreMock");
-    const dropifyCoreMockContract = await dropifyCoreMockContractFactory.deploy();
+    const dropifyCoreMockContractFactory = await ethers.getContractFactory(
+      "DropifyCoreMock"
+    );
+    const dropifyCoreMockContract =
+      await dropifyCoreMockContractFactory.deploy();
 
     console.log(
       `\nWaiting ${
@@ -28,7 +31,10 @@ task("deploy-core-mock", "Deploys the DropifyCoreMock contract")
       networks[network.name].confirmations
     );
 
-    console.log("\nDeployed DropifyCoreMock contract to:", dropifyCoreMockContract.address);
+    console.log(
+      "\nDeployed DropifyCoreMock contract to:",
+      dropifyCoreMockContract.address
+    );
 
     if (network.name === "localFunctionsTestnet") {
       return;

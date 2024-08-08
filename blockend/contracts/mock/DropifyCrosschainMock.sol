@@ -55,14 +55,16 @@ contract DropifyCrosschainMock {
     address public owner;
     uint64 public chain;
 
-    address public crosschainAddress;
-    uint64 public crosschainSelector;
+    address public coreAddress;
+    uint64 public coreSelector;
+    uint64 public coreHyperlaneSelector;
 
-    constructor(uint64 _chain){
+    constructor(uint64 _chain, address _coreAddress, uint64 _coreSelector){
         aidropIds = 0;
         owner = msg.sender;
         chain = _chain;
-        crosschainAddress=address(0);
+        coreAddress = _coreAddress;
+        coreSelector = _coreSelector;
     }
 
     event AirdropCrosschainCreated(uint256 localAirdropId, bytes32 crosschainMessageId, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
@@ -75,15 +77,12 @@ contract DropifyCrosschainMock {
         _;
     }
 
-    modifier onlyAuthorizedCrosschain(address _caller, uint64 _chain){
-       if(crosschainAddress != _caller || crosschainSelector != _chain) revert NotAuthorizedCrosschain(_chain, _caller);
+    modifier onlyAuthorizedCrosschain(address _caller, uint64 _chain ){
+       if(coreAddress != _caller || coreSelector != _chain) revert NotAuthorizedCrosschain(_chain, _caller);
         _;
     }
 
-    function initalize(address _crosschainAddress, uint64 _crosschainSelector) public onlyOwner{
-        crosschainAddress = _crosschainAddress;
-        crosschainSelector = _crosschainSelector;
-    }
+
 
     // TODO: Delete the Mock params
     function createAirdrop(CreateAirdropParams memory params, MockParams memory mockParams) public{
