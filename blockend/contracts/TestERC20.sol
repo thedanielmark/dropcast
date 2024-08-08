@@ -6,9 +6,9 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TestERC20 is ERC20, Ownable {
-    constructor(address initialOwner)
+    constructor( )
         ERC20("Gabriel", "GB")
-        Ownable(initialOwner)
+        Ownable(msg.sender)
     {
         _mint(msg.sender, 100 * 10 ** decimals());
     }
