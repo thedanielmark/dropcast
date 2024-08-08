@@ -11,6 +11,11 @@ interface Metadata {
   tasks: Task[];
 }
 
+interface Status {
+  error: boolean;
+  message: string;
+}
+
 export default function CreateAirdrop() {
   const [contractAddress, setContractAddress] = useState("");
   const [tokenAmount, setTokenAmount] = useState<number | "">("");
@@ -22,8 +27,13 @@ export default function CreateAirdrop() {
     tasks: [],
   });
   const [metadataUrl, setMetadataUrl] = useState<string>("");
+  const [status, setStatus] = useState<Status>({
+    error: false,
+    message: "",
+  });
   return (
     <div>
+      <p className="text-2xl font-semibold pb-12">Create Airdrop</p>
       <p>Title</p>
       <input
         type="string"
