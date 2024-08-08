@@ -1,6 +1,8 @@
 "use client";
 
+import ContractCalls from "./components/ContractCalls";
 import LogIn from "./components/LogIn";
+import WorldcoinVerification from "./components/WorldcoinVerification";
 
 // TODO
 // 1. Create airdrop
