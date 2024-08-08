@@ -27,10 +27,7 @@ export default function CreateAirdrop() {
     tasks: [],
   });
   const [metadataUrl, setMetadataUrl] = useState<string>("");
-  const [status, setStatus] = useState<Status>({
-    error: false,
-    message: "",
-  });
+  const [status, setStatus] = useState<Status[]>([]);
   return (
     <div>
       <p className="text-2xl font-semibold pb-12">Create Airdrop</p>

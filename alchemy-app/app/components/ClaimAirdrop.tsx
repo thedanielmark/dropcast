@@ -12,10 +12,7 @@ export default function ClaimAirdrop() {
   const [tokensPerClaim, setTokensPerClaim] = useState<number | "">("");
 
   const [metadataUrl, setMetadataUrl] = useState<string>("");
-  const [status, setStatus] = useState<Status>({
-    error: false,
-    message: "",
-  });
+  const [status, setStatus] = useState<Status[]>([]);
   return (
     <div>
       <p className="text-2xl font-semibold pb-12">Claim Airdrop</p>
