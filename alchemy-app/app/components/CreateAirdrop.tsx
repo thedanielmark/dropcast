@@ -1,8 +1,5 @@
-import { PinataSDK } from "pinata";
-import { title } from "process";
 import { useState } from "react";
 import {
-  type UseSendUserOperationResult,
   useSendUserOperation,
   useSmartAccountClient,
 } from "@account-kit/react";

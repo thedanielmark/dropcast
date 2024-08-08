@@ -1,18 +1,68 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  IDKitWidget,
+  VerificationLevel,
+  ISuccessResult,
+} from "@worldcoin/idkit";
 
 interface Status {
   error: boolean;
   message: string;
 }
-
+import {
+  useAccount,
+  useSendUserOperation,
+  useSmartAccountClient,
+} from "@account-kit/react";
+import { CORE_ABI, CORE_ADDRESS } from "../utils/constants";
+import { decodeAbiParameters } from "viem";
 export default function ClaimAirdrop() {
+  const { address } = useAccount({
+    type: "LightAccount",
+  });
   const [airdropId, setAirdrpId] = useState("");
-  const [contractAddress, setContractAddress] = useState("");
-  const [tokenAmount, setTokenAmount] = useState<number | "">("");
-  const [tokensPerClaim, setTokensPerClaim] = useState<number | "">("");
-
-  const [metadataUrl, setMetadataUrl] = useState<string>("");
   const [status, setStatus] = useState<Status[]>([]);
+  const { client } = useSmartAccountClient({ type: "LightAccount" });
+  const [worldcoin, setWorldCoin] = useState<any>(null);
+  const [worldVerified, setWorldVerified] = useState<boolean>(true);
+  const { sendUserOperation, isSendingUserOperation } = useSendUserOperation({
+    client,
+    waitForTxn: true,
+    onSuccess: ({ hash, request }) => {
+      setStatus([
+        ...status,
+        {
+          error: false,
+          message: `Transaction ${hash} sent successfully`,
+        },
+      ]);
+    },
+    onError: (error) => {
+      setStatus([
+        ...status,
+        {
+          error: true,
+          message: `Error sending transaction: ${error}`,
+        },
+      ]);
+    },
+  });
+  useEffect(() => {
+    console.log("WORLDCOIN");
+    console.log(worldcoin);
+  }, [worldcoin]);
+
+  const unpack = (proof: `0x${string}`) => {
+    return decodeAbiParameters([{ type: "uint256[8]" }], proof)[0];
+  };
+
+  const onSuccess = (result: ISuccessResult) => {
+    const bigNumProofs = unpack((result as any).proof);
+    setWorldCoin({ ...result, proofs: bigNumProofs });
+    console.log("Success");
+    console.log(result);
+    setWorldVerified(true);
+  };
   return (
     <div>
       <p className="text-2xl font-semibold pb-12">Claim Airdrop</p>
@@ -23,8 +73,46 @@ export default function ClaimAirdrop() {
         value={airdropId}
         onChange={(e) => setAirdrpId(e.target.value)}
       />
-      <button className="block mx-auto btn btn-primary mt-6" onClick={() => {}}>
+      <button
+        className="block mx-auto btn btn-primary mt-6"
+        onClick={async () => {
+          const data = await client?.readContract({
+            abi: CORE_ABI,
+            address: CORE_ADDRESS,
+            functionName: "airdrops",
+            args: [airdropId],
+          });
+
+          console.log(data);
+        }}
+      >
         Fetch Airdrop
+      </button>
+      {worldVerified ? (
+        <p className="mt-4">WORLDCOIN VERIFIED 🥰</p>
+      ) : (
+        <IDKitWidget
+          app_id={
+            (process.env.NEXT_PUBLIC_WORLDCOIN_APP_ID as `app_${string}`) ||
+            "app_"
+          }
+          action="unique-human-airdrop"
+          onSuccess={onSuccess}
+          signal={address}
+        >
+          {({ open }) => (
+            // This is the button that will open the IDKit modal
+            <button onClick={open}>Verify with World ID</button>
+          )}
+        </IDKitWidget>
+      )}
+      <button
+        className="block mx-auto btn btn-primary mt-6"
+        onClick={async () => {
+          // TODO: This will send a transaction using our EOA wallet to release the tokens to the claimer once he satisfied all the criteria
+        }}
+      >
+        Claim Airdrop
       </button>
       {/*  <p>Description</p>
       <textarea
