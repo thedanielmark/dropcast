@@ -1,3 +1,4 @@
+import { PinataSDK } from "pinata";
 import { title } from "process";
 import { useState } from "react";
 interface Task {
@@ -46,7 +47,7 @@ export default function CreateAirdrop() {
           setMetadata({ ...metadata, description: e.target.value })
         }
       />
-      <div className="flex justify-around">
+      <div className="flex space-x-4 my-2">
         <div>
           <p>Contract Address</p>
           <input
@@ -63,6 +64,15 @@ export default function CreateAirdrop() {
             className="input"
             value={tokenAmount}
             onChange={(e) => setTokenAmount(parseInt(e.target.value))}
+          />
+        </div>
+        <div>
+          <p>Tokens Per Claim</p>
+          <input
+            type="number"
+            className="input"
+            value={tokensPerClaim}
+            onChange={(e) => setTokensPerClaim(parseInt(e.target.value))}
           />
         </div>
       </div>
@@ -135,12 +145,48 @@ export default function CreateAirdrop() {
       >
         Remove Task
       </button>
-      <button className="block mx-auto btn btn-primary mt-6" onClick={() => {}}>
+      <button
+        className="block mx-auto btn btn-primary mt-6"
+        onClick={async () => {
+          const pinata = new PinataSDK({
+            pinataJwt: process.env.NEXT_PUBLIC_PINATA_JWT!,
+            pinataGateway: "amethyst-impossible-ptarmigan-368.mypinata.cloud",
+          });
+          console.log("METADATA");
+          console.log(metadata);
+          const upload = await pinata.upload.json(metadata);
+          console.log("METADATA URL");
+          console.log(
+            "https://amethyst-impossible-ptarmigan-368.mypinata.cloud/ipfs/" +
+              upload.IpfsHash +
+              "?pinataGatewayToken=" +
+              process.env.NEXT_PUBLIC_PINATA_GATEWAY_KEY
+          );
+          setMetadataUrl(
+            "https://amethyst-impossible-ptarmigan-368.mypinata.cloud/ipfs/" +
+              upload.IpfsHash +
+              "?pinataGatewayToken=" +
+              process.env.NEXT_PUBLIC_PINATA_GATEWAY_KEY
+          );
+          setStatus([
+            {
+              error: false,
+              message:
+                "Metadata uploaded successfully to IPFS: " + upload.IpfsHash,
+            },
+          ]);
+        }}
+      >
         Approve Tokens
       </button>
-      <button className="block mx-auto btn btn-primary mt-6" onClick={() => {}}>
+      <button className="block mx-auto btn btn-primary my-6" onClick={() => {}}>
         Create Airdrop
       </button>
+      {status.map((s, i) => (
+        <p className={s.error ? "text-red-700" : "text-white"}>{`[${i + 1}] ${
+          s.message
+        }`}</p>
+      ))}
     </div>
   );
 }
