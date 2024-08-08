@@ -1,5 +1,5 @@
 import { AlchemyAccountsUIConfig, createConfig } from "@account-kit/react";
-import { sepolia } from "@account-kit/infra";
+import { arbitrumSepolia, baseSepolia } from "@account-kit/infra";
 import { QueryClient } from "@tanstack/react-query";
 
 const uiConfig: AlchemyAccountsUIConfig = {
@@ -16,8 +16,8 @@ const uiConfig: AlchemyAccountsUIConfig = {
 export const config = createConfig(
   {
     apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY!,
-    chain: sepolia,
-
+    chain: baseSepolia,
+    // chains: [baseSepolia, arbitrumSepolia],
     ssr: true,
   },
   uiConfig
