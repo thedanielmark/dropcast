@@ -1,1 +1,3 @@
-export default function WorldcoinVerification() {}
+export default function WorldcoinVerification() {
+  return <div></div>;
+}
