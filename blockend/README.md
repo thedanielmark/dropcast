@@ -56,6 +56,11 @@ Contracts for Dropify.
 3. Deploy Core (on base)
 4. Initialize Core with crosschain contracts
 
+## EAS Schemas
+
+1. Create Airdrop - https://base-sepolia.easscan.org/schema/view/0xa47b91299da9a0bd968e0030568703a00ad0d851bd9c32efb98a53e39750ed42
+2. Claim Airdrop - https://base-sepolia.easscan.org/schema/view/0x82ba92089cfdf9cd4340c24b35356aabf92e5bac94f264af89e060cb4896bbcd
+
 ## Deployments
 
 1. Vault Implementation (Base) - 0xf3Dfb114CFAe91FC391e3E76f208eBbF595dCA82
