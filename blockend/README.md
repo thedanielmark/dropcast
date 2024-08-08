@@ -19,6 +19,19 @@ Contracts for Dropify.
    b. Composer Actions
    c. Frames
 
+## Metadata Schema
+
+1. Title: Title of the airdrop
+2. Description: Description of the airdrop in Markdown
+3. Tasks: An array of tasks to complete to claim the airdrop
+   1. Type: In the UI, it should be dropdown where the user chooses from a list of the below options
+      1. Hold NFTs: Type 1. Address = NFT contract address. Threshold = required number of NFTs in that collection to claim the airdrop.
+      2. Hold ERC20s: Type 2. Address = ERC20 contract address. Threshold = required number of tokens to claim the airdrop.
+      3. Follow Account in Farcaster. type 3. Address = Does not matter. Threshold = fid that needs to be followed.
+      4. Followers Criteria. Type 4. Address= Does not matter. threshold = amount of followers required.
+   2. Address: Address of the token for NFTs and ERC20s. Depends on the type for the others.
+   3. Threshold: Required amount to satisfy the criteria.
+
 ## Contract Specification
 
 1. Create airdrop (should be done on the respective chain)
