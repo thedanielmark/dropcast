@@ -13,10 +13,16 @@ task("deploy-crosschain-mock", "Deploys the DropifyCrosschainMock contract")
     console.log("\n__Compiling Contracts__");
     await run("compile");
 
+    const args = [
+      "84532",
+      "0xB08aDb11A45284b96155F63009758014b1eb698C",
+      "10344971235874465080",
+    ];
+
     const dropifyCrosschainMockContractFactory =
       await ethers.getContractFactory("DropifyCrosschainMock");
     const dropifyCrosschainMockContract =
-      await dropifyCrosschainMockContractFactory.deploy();
+      await dropifyCrosschainMockContractFactory.deploy(...args);
 
     console.log(
       `\nWaiting ${
@@ -50,7 +56,7 @@ task("deploy-crosschain-mock", "Deploys the DropifyCrosschainMock contract")
         console.log("\nVerifying contract...");
         await run("verify:verify", {
           address: dropifyCrosschainMockContract.address,
-          constructorArguments: [],
+          constructorArguments: args,
         });
         console.log("Contract verified");
       } catch (error) {
