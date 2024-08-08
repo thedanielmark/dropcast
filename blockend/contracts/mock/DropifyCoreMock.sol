@@ -104,7 +104,7 @@ contract DropifyCoreMock {
         _;
     }
 
-    function initalize(address[] _hyperlaneAddresses, uint64[] _hyperlaneSelectors, address[] _chainlinkAddresses, uint64[] _chainlinkSelectors) public onlyOwner{
+    function initalize(address[] memory _hyperlaneAddresses, uint64[] memory _hyperlaneSelectors, address[] memory _chainlinkAddresses, uint64[] memory _chainlinkSelectors) public onlyOwner{
         for(uint i=0; i < _chainlinkAddresses.length; i++) _chainlinkAddresses[_chainlinkSelectors[i]] = _chainlinkAddresses[i];
         for(uint i=0; i < _hyperlaneAddresses.length; i++) hyperlaneDeployments[_hyperlaneSelectors[i]] = _hyperlaneAddresses[i];
         initialized=true;
