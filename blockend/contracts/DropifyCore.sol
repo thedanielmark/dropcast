@@ -42,9 +42,12 @@ contract DropifyCore {
         address ccipRouter;
         address hyperlaneRouter;
         IEAS eas;
+        bytes32 createAirdropSchema;
+        bytes32 claimAirdropSchema;
     }
 
     struct Airdrop {
+        uint64 chainId;
         uint256 localAirdropId;
         address creator;
         address tokenAddress;
@@ -53,8 +56,18 @@ contract DropifyCore {
         uint256 tokensClaimed;
         address vaultAddress;
         string metadata;
-        uint256 createdAttestationId;
-        uint256[] claimAttestations;
+        bytes32 createdAttestationId;
+        bytes32[] claimAttestations;
+    }
+
+    struct CreateAttestationEncodeParams{
+        uint256 localAirdropId;
+        address vaultAddress;
+        address tokenAddress;
+        uint256 tokenAmount;
+        uint256 tokensPerClaim;
+        address creator;
+        string metadata;
     }
 
     struct Humanness {
@@ -71,6 +84,8 @@ contract DropifyCore {
     address public vaultImplementation;
     address public ccipRouter;
     address public hyperlaneRouter;
+    bytes32 public createAirdropSchema;
+    bytes32 public claimAirdropSchema;
     mapping(uint64=>address) public chainlinkCcipDeployments;
     mapping(uint64=>address) public hyperlaneDeployments;
 
@@ -78,7 +93,7 @@ contract DropifyCore {
     uint64 public chainId;
     
     bytes4 public constant INITIALIZE_VAULT_METHOD_ID=bytes4(keccak256("initialize(address,uint256,uint256,string)"));
-    
+
     constructor(ConstructorParams memory _params){
         aidropIds = 0;
         owner = msg.sender;
@@ -86,13 +101,15 @@ contract DropifyCore {
         ccipRouter = _params.ccipRouter;
         hyperlaneRouter = _params.hyperlaneRouter;
         chainId = _params.chainId;
-        if (address(eas) == address(0)) {
+        if (address(_params.eas) == address(0)) {
             revert InvalidEAS();
         }
-        _eas = eas;
+        _eas = _params.eas;
+        createAirdropSchema = _params.createAirdropSchema;
+        claimAirdropSchema = _params.claimAirdropSchema;
     }
 
-    event AirdropCreated(uint256 airdropId, uint64 chain, uint256 attestationId, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
+    event AirdropCreated(uint256 airdropId, uint64 chain, bytes32 attestationId, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
     event AidropClaimed(uint256 airdropId, uint256 attestationId, address  claimerAddress, uint256 nullifierHash, uint256 amountClaimed);
 
     modifier onlyInitialized{
@@ -122,9 +139,9 @@ contract DropifyCore {
         initialized=true;
     }
 
-    function createAirdrop(CreateAirdropParams memory params) public onlyInitialized{
+    function createAirdrop(CreateAirdropParams memory params) public /*onlyInitialized*/{
 
-        if(IERC20(params.tokenAddress).allowance(msg.sender, address(this))<params.tokenAmount) revert NotEnoughAllowance(params.tokenAmount);
+        if(IERC20(params.tokenAddress).allowance(msg.sender, address(this)) < params.tokenAmount) revert NotEnoughAllowance(params.tokenAmount);
 
         address vaultAddress = _deployProxy(vaultImplementation, localAirdropIds);
         bytes memory initData = abi.encodeWithSelector(
@@ -137,32 +154,45 @@ contract DropifyCore {
         (bool success, ) = vaultAddress.call(initData);
         if(!success) revert VaultInitFailed(vaultAddress);
 
-        // TODO: Make an on-chain attestation and update the state in Aidrop
-        _eas.attest(
+        bytes32 _attestationId = _eas.attest(
             AttestationRequest({
-                schema: schema,
+                schema: createAirdropSchema,
                 data: AttestationRequestData({
-                recipient: address(0), // No recipient
-                expirationTime: NO_EXPIRATION_TIME, // No expiration time
-                revocable: true,
-                refUID: EMPTY_UID, // No references UI
-                data: abi.encode(input), // Encode a single uint256 as a parameter to the schema
-                value: 0 // No value/ETH
+                recipient: msg.sender, 
+                expirationTime: NO_EXPIRATION_TIME,
+                revocable: false, 
+                refUID: EMPTY_UID,
+                data: _getCreateAttestationEncodedData(CreateAttestationEncodeParams(localAirdropIds, vaultAddress, params.tokenAddress, params.tokenAmount, params.tokensPerClaim, msg.sender, params.metadata)),
+                value: 0 
             })
             })
         );
 
-        emit AirdropCreated(aidropIds, chainId, mockParams.createdAttestationId, mockParams.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
+        airdrops[aidropIds] = Airdrop({
+            chainId: chainId,
+            localAirdropId: localAirdropIds,
+            creator: msg.sender,
+            tokenAddress: params.tokenAddress,
+            tokenAmount: params.tokenAmount,
+            tokensPerClaim: params.tokensPerClaim,
+            tokensClaimed: 0,
+            vaultAddress: vaultAddress,
+            metadata: params.metadata,
+            createdAttestationId: _attestationId,
+            claimAttestations: new bytes32[](0)
+        });
+
+        emit AirdropCreated(aidropIds, chainId,_attestationId, vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
         aidropIds++;
         localAirdropIds++;
     }
 
-    // TODO: Remove the onlyAuthroizedCrosschain modifier comment
-    function receiveCreateAirdrop(address crossChainAddress, bool isChainlink, uint64 _chain, CrosshchainCreateAirdropParams memory params) public /*onlyAuthorizedCrosschain(crossChainAddress, params.chain, isChainlink) onlyInitialized*/ {
-        // TODO: Make an on-chain attestation and update the state in Aidrop 
+    // // TODO: Remove the onlyAuthroizedCrosschain modifier comment
+    // function receiveCreateAirdrop(address crossChainAddress, bool isChainlink, uint64 _chain, CrosshchainCreateAirdropParams memory params) public onlyAuthorizedCrosschain(crossChainAddress, params.chain, isChainlink) onlyInitialized {
+    //     // TODO: Make an on-chain attestation and update the state in Aidrop 
 
-        emit AirdropCreated(params.localAirdropId, _chain, params.localAirdropId, params.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
-    }
+    //     emit AirdropCreated(params.localAirdropId, _chain, bytes32(0), params.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
+    // }
 
     function claimAirdrop(uint256 airdropId, address claimerAddress, uint256 amountClaimed, uint256 attestationId, Humanness memory humanness) public /*onlyOwner onlyInitialized*/ {
         // TODO: Verify Worldcoin proof
@@ -197,6 +227,12 @@ contract DropifyCore {
                 hex"5af43d82803e903d91602b57fd5bf3",
                 abi.encode(salt_)
             );
+    }
+
+
+
+    function _getCreateAttestationEncodedData(CreateAttestationEncodeParams memory encodeParams) internal pure returns (bytes memory){
+        return abi.encode(encodeParams.localAirdropId, encodeParams.vaultAddress, encodeParams.tokenAddress, encodeParams.tokenAmount, encodeParams.tokensPerClaim, encodeParams.creator, encodeParams.metadata);
     }
 
 }

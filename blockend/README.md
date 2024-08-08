@@ -67,6 +67,7 @@ Contracts for Dropify.
 2. Vault Implementation (Arbitrum) - 0x81692a7278869Bb5bf98A1adD937fdB7EEfFe09c
 3. Core Mock (Base) - 0xB08aDb11A45284b96155F63009758014b1eb698C
 4. Crosschain Mock (Arbitrum) - 0x4a0DC91781A116e83770A17AD09b63fa3E50d7Ce
+5. Core (Base) - 0x6948d04F773C3045Ed10956d0638aEd64e6e30E7
 
 ## Contributors
 
