@@ -16,8 +16,15 @@ task("deploy-core-mock", "Deploys the DropifyCoreMock contract")
     const dropifyCoreMockContractFactory = await ethers.getContractFactory(
       "DropifyCoreMock"
     );
-    const dropifyCoreMockContract =
-      await dropifyCoreMockContractFactory.deploy();
+
+    const args = [
+      "0xf3Dfb114CFAe91FC391e3E76f208eBbF595dCA82",
+      "0xD3b06cEbF099CE7DA4AcCf578aaebFDBd6e88a93",
+      "0xD3b06cEbF099CE7DA4AcCf578aaebFDBd6e88a93",
+    ];
+    const dropifyCoreMockContract = await dropifyCoreMockContractFactory.deploy(
+      args
+    );
 
     console.log(
       `\nWaiting ${
@@ -51,7 +58,7 @@ task("deploy-core-mock", "Deploys the DropifyCoreMock contract")
         console.log("\nVerifying contract...");
         await run("verify:verify", {
           address: dropifyCoreMockContract.address,
-          constructorArguments: [],
+          constructorArguments: [args],
         });
         console.log("Contract verified");
       } catch (error) {
