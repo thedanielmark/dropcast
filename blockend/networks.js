@@ -34,9 +34,9 @@ const networks = {
     confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
     nativeCurrencySymbol: "ETH",
     vaultAddress: "0xe92C2510fd0d1B3bA3ee57F16C1CFD572CBBEC58",
-    coreAddress: "0x08b36E6534a1D7D96d4d6b71eF524967d658e7FA",
     chainlinkSelector: "10344971235874465080",
     ccipRouter: "0xD3b06cEbF099CE7DA4AcCf578aaebFDBd6e88a93",
+    coreAddress: "0x85ac9f42C03f2fAff9D42C504abD296395e71Cc5",
   },
   arbitrumSepolia: {
     url:
@@ -52,7 +52,7 @@ const networks = {
     vaultAddress: "0x14260251f1640323677E7eBc1d6EcDC6D407d212",
     chainlinkSelector: "3478487238524512106",
     ccipRouter: "0x2a9C5afB0d0e4BAb2BCdaE109EC4b0c4Be15a165",
-    crosschain: "0xd7a21be117996921a892a3A073DdA28233F70E6c",
+    crosschain: "0x2636716DF271736dE3EC0d502bDaAC49d7c6a938",
   },
 };
 

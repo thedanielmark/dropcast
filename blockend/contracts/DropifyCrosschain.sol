@@ -66,7 +66,7 @@ contract DropifyCrosschain is CCIPReceiver {
     uint64 public coreSelector;
     uint64 public coreChain;
     uint64 public coreHyperlaneSelector;
-    bytes4 public constant INITIALIZE_VAULT_METHOD_ID=bytes4(keccak256("initialize(address,uint256,uint256,string)"));
+    bytes4 public constant INITIALIZE_VAULT_METHOD_ID=bytes4(keccak256("initialize(address,address,uint256,uint256,string)"));
 
     constructor(ConstructorParams memory params) CCIPReceiver(params.ccipRouter){
         localAirdropIds = 0;

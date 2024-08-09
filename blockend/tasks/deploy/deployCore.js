@@ -25,6 +25,9 @@ task("deploy-core", "Deploys the DropifyCore contract")
       "0x4200000000000000000000000000000000000021",
       "0xa47b91299da9a0bd968e0030568703a00ad0d851bd9c32efb98a53e39750ed42",
       "0x82ba92089cfdf9cd4340c24b35356aabf92e5bac94f264af89e060cb4896bbcd",
+      "0x42FF98C4E85212a5D31358ACbFe76a621b50fC02",
+      "app_staging_e18da2aa6edc21af57c170b0abfef1d6",
+      "unique-human-airdrop",
     ];
 
     const dropifyCoreContract = await dropifyCoreContractFactory.deploy(args);
