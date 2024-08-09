@@ -33,8 +33,8 @@ const networks = {
     chainId: 84532,
     confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
     nativeCurrencySymbol: "ETH",
-    vaultAddress: "0x42Fd9Fa04446f8Fd98946bACdE3182647f623e5a",
-    coreAddress: "0xDc59057716677afE37755e8aA256c8d852D62f64",
+    vaultAddress: "0xe92C2510fd0d1B3bA3ee57F16C1CFD572CBBEC58",
+    coreAddress: "0x08b36E6534a1D7D96d4d6b71eF524967d658e7FA",
     chainlinkSelector: "10344971235874465080",
     ccipRouter: "0xD3b06cEbF099CE7DA4AcCf578aaebFDBd6e88a93",
   },
@@ -49,10 +49,10 @@ const networks = {
     chainId: 421614,
     confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
     nativeCurrencySymbol: "ETH",
-    vaultAddress: "0xb2E569D1a8De5E127F36d91fd9Ca5371cc1eAe75",
+    vaultAddress: "0x14260251f1640323677E7eBc1d6EcDC6D407d212",
     chainlinkSelector: "3478487238524512106",
     ccipRouter: "0x2a9C5afB0d0e4BAb2BCdaE109EC4b0c4Be15a165",
-    crosschain: "0xf09405de084E358717458AEC32b64A9114AB7bB2",
+    crosschain: "0xd7a21be117996921a892a3A073DdA28233F70E6c",
   },
 };
 

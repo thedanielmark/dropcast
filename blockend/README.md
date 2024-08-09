@@ -70,11 +70,12 @@ yarn hardhat deploy-crosschain --verify true --network arbitrumSepolia
 
 ## Deployments
 
-1. Vault Implementation (Base) - 0x7c249c42CF87deCf9f424FcBb851397599C3073E
-2. Vault Implementation (Arbitrum) - 0xC7297019FCDA5774c22180cd7E1801fed7EC10A9
+1. Vault Implementation (Base) - 0xe92C2510fd0d1B3bA3ee57F16C1CFD572CBBEC58
+2. Vault Implementation (Arbitrum) - 0x14260251f1640323677E7eBc1d6EcDC6D407d212
 3. Core Mock (Base) - 0xB08aDb11A45284b96155F63009758014b1eb698C
 4. Crosschain Mock (Arbitrum) - 0x4a0DC91781A116e83770A17AD09b63fa3E50d7Ce
-5. Core (Base) - 0x6948d04F773C3045Ed10956d0638aEd64e6e30E7
+5. Core (Base) - 0x08b36E6534a1D7D96d4d6b71eF524967d658e7FA
+6. Crosschain (Arbitrum) - 0xd7a21be117996921a892a3A073DdA28233F70E6c
 
 ## Tasks
 
