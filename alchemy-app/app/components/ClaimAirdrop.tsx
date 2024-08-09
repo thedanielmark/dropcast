@@ -16,11 +16,17 @@ import {
   useUser,
 } from "@account-kit/react";
 import { CORE_ABI, CORE_ADDRESS } from "../utils/constants";
-import { decodeAbiParameters } from "viem";
+import { decodeAbiParameters, hexToBigInt } from "viem";
 import getWorldcoinVerificationData from "../utils/getWorldcoinVerificationData";
 import { baseSepolia, createAlchemyPublicRpcClient } from "@account-kit/infra";
 export default function ClaimAirdrop() {
   const user = useUser();
+  const readClient = createAlchemyPublicRpcClient({
+    chain: baseSepolia,
+    connectionConfig: {
+      apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY as string,
+    },
+  });
   const [airdropId, setAirdrpId] = useState("");
   const [status, setStatus] = useState<Status[]>([]);
   const { client } = useSmartAccountClient({ type: "LightAccount" });
@@ -58,13 +64,22 @@ export default function ClaimAirdrop() {
         "0x0429A2Da7884CA14E53142988D5845952fE4DF6a",
         worldcoin
       );
-      sendUserOperation({
-        uo: {
-          target: CORE_ADDRESS as `0x${string}`,
-          data: data,
-          value: BigInt("0"),
-        },
-      });
+      (async function () {
+        const response = await readClient.readContract({
+          abi: CORE_ABI,
+          functionName: "verifyWorldProof",
+          address: CORE_ADDRESS,
+          args: [
+            [
+              user?.address,
+              hexToBigInt(worldcoin.merkle_root),
+              hexToBigInt(worldcoin.nullifier_hash),
+              worldcoin.proofs,
+            ],
+          ],
+        });
+        console.log(response);
+      })();
     }
   }, [worldcoin]);
 
@@ -92,13 +107,7 @@ export default function ClaimAirdrop() {
       <button
         className="block mx-auto btn btn-primary mt-6"
         onClick={async () => {
-          const client = createAlchemyPublicRpcClient({
-            chain: baseSepolia,
-            connectionConfig: {
-              apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY as string,
-            },
-          });
-          const response = await client.readContract({
+          const response = await readClient.readContract({
             abi: CORE_ABI,
             functionName: "airdrops",
             address: CORE_ADDRESS,

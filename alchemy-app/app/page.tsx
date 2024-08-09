@@ -4,7 +4,6 @@ import { useUser } from "@account-kit/react";
 import CreateAirdrop from "./components/CreateAirdrop";
 import ClaimAirdrop from "./components/ClaimAirdrop";
 import LogIn from "./components/LogIn";
-import WorldcoinVerification from "./components/WorldcoinVerification";
 
 // TODO
 // 1. Create airdrop
@@ -25,7 +24,6 @@ export default function Home() {
       ) : (
         <p>Log in to get started</p>
       )}
-      <WorldcoinVerification />
     </main>
   );
 }
