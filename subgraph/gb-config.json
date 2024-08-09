@@ -3,7 +3,7 @@
   "name": "GB",
   "abis": {
     "ftshares": {
-      "path": "../"
+      "path": "./abi.json"
     }
   },
   "instances": [
