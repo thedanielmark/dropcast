@@ -16,6 +16,7 @@ import {
 } from "@account-kit/react";
 import { CORE_ABI, CORE_ADDRESS } from "../utils/constants";
 import { decodeAbiParameters } from "viem";
+import getWorldcoinVerificationData from "../utils/getWorldcoinVerificationData";
 export default function ClaimAirdrop() {
   const { address } = useAccount({
     type: "LightAccount",
@@ -24,16 +25,18 @@ export default function ClaimAirdrop() {
   const [status, setStatus] = useState<Status[]>([]);
   const { client } = useSmartAccountClient({ type: "LightAccount" });
   const [worldcoin, setWorldCoin] = useState<any>(null);
-  const [worldVerified, setWorldVerified] = useState<boolean>(true);
+  const [worldVerified, setWorldVerified] = useState<boolean>(false);
   const { sendUserOperation, isSendingUserOperation } = useSendUserOperation({
     client,
     waitForTxn: true,
-    onSuccess: ({ hash, request }) => {
+    onSuccess: (out) => {
+      console.log("Respponse");
+      console.log(out);
       setStatus([
         ...status,
         {
           error: false,
-          message: `Transaction ${hash} sent successfully`,
+          message: `Transaction ${out.hash} sent successfully`,
         },
       ]);
     },
@@ -50,6 +53,19 @@ export default function ClaimAirdrop() {
   useEffect(() => {
     console.log("WORLDCOIN");
     console.log(worldcoin);
+    if (worldcoin != null) {
+      let data = getWorldcoinVerificationData(
+        "0x0429A2Da7884CA14E53142988D5845952fE4DF6a",
+        worldcoin
+      );
+      sendUserOperation({
+        uo: {
+          target: CORE_ADDRESS as `0x${string}`,
+          data: data,
+          value: BigInt("0"),
+        },
+      });
+    }
   }, [worldcoin]);
 
   const unpack = (proof: `0x${string}`) => {
