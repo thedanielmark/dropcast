@@ -18,6 +18,7 @@ import {
 import { CORE_ABI, CORE_ADDRESS } from "../utils/constants";
 import { decodeAbiParameters } from "viem";
 import getWorldcoinVerificationData from "../utils/getWorldcoinVerificationData";
+import { baseSepolia, createAlchemyPublicRpcClient } from "@account-kit/infra";
 export default function ClaimAirdrop() {
   const user = useUser();
   const [airdropId, setAirdrpId] = useState("");
@@ -91,14 +92,19 @@ export default function ClaimAirdrop() {
       <button
         className="block mx-auto btn btn-primary mt-6"
         onClick={async () => {
-          const data = await client?.readContract({
+          const client = createAlchemyPublicRpcClient({
+            chain: baseSepolia,
+            connectionConfig: {
+              apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY as string,
+            },
+          });
+          const response = await client.readContract({
             abi: CORE_ABI,
-            address: CORE_ADDRESS,
             functionName: "airdrops",
+            address: CORE_ADDRESS,
             args: [airdropId],
           });
-
-          console.log(data);
+          console.log(response);
         }}
       >
         Fetch Airdrop
@@ -114,13 +120,13 @@ export default function ClaimAirdrop() {
             }
             action="unique-human-airdrop"
             onSuccess={onSuccess}
-            onError={(error) => {
+            onError={(error: any) => {
               console.log(error);
             }}
             signal={user.address}
             verification_level={VerificationLevel.Orb}
           >
-            {({ open }) => (
+            {({ open }: any) => (
               // This is the button that will open the IDKit modal
               <button onClick={open}>Verify with World ID</button>
             )}
