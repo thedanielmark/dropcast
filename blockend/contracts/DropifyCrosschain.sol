@@ -8,13 +8,15 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {CCIPReceiver} from "@chainlink/contracts-ccip/src/v0.8/ccip/applications/CCIPReceiver.sol";
 import {IRouterClient} from "@chainlink/contracts-ccip/src/v0.8/ccip/interfaces/IRouterClient.sol";
 import {Client} from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.sol";
+import "./interface/IVault.sol";
 
 error NotOwner(address caller);
 error WorldCoinVerificationFailed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, bytes proof);
-error HumanAlreadyClaimed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, bytes proof);
+error HumanAlreadyClaimed(uint256 airdropId, uint256 nullifierHash);
 error NotAuthorizedCrosschain(uint64 chain, address caller);
 error NotEnoughCrosschainFee(uint256 balance, uint256 fee);
 error VaultInitFailed(address vaultAddress);
+error VaultDepleted(uint256 airdropId, uint256 tokensClaimed, uint256 tokensPerClaim, uint256 totalClaimed);
 error NotEnoughAllowance(uint256 tokenAmount);
 
 contract DropifyCrosschain is CCIPReceiver {
@@ -26,11 +28,10 @@ contract DropifyCrosschain is CCIPReceiver {
         string metadata;
     }
 
-    struct CrosschainClaimParams{
+    struct CrosschainClaim{
         uint256 localAirdropId;
         address claimer;
-        uint256 claimAttestationId;
-        uint256 nullifer;
+        uint256 nullifier;
     }
 
     struct CrosschainAirdrop {
@@ -78,7 +79,7 @@ contract DropifyCrosschain is CCIPReceiver {
     }
 
     event AirdropCrosschainCreated(uint256 localAirdropId, bytes32 crosschainMessageId, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
-    event AidropClaimed(uint256 airdropId, address claimerAddress, uint256 nullifierHash, uint256 claimAttestaionId, uint256 amountClaimed);
+    event AidropClaimed(uint256 airdropId, address claimerAddress, uint256 nullifierHash, uint256 amountClaimed);
 
     modifier onlyOwner{
         if(msg.sender != owner){
@@ -99,12 +100,15 @@ contract DropifyCrosschain is CCIPReceiver {
         bytes memory initData = abi.encodeWithSelector(
             INITIALIZE_VAULT_METHOD_ID,
             params.tokenAddress,
+            address(this),
             params.tokenAmount,
             params.tokensPerClaim,
             params.metadata
         );
         (bool success, ) = vaultAddress.call(initData);
         if(!success) revert VaultInitFailed(vaultAddress);
+
+        IERC20(params.tokenAddress).transferFrom(msg.sender, vaultAddress, params.tokenAmount);
 
         airdrops[localAirdropIds] = CrosschainAirdrop({
             chainId: chain,
@@ -126,7 +130,6 @@ contract DropifyCrosschain is CCIPReceiver {
         localAirdropIds++;
     }
 
-
     function _sendMessagePayNative(uint256 _feePaid, bytes memory _data) internal returns (bytes32 messageId)
     {
         Client.EVM2AnyMessage memory evm2AnyMessage = _buildCCIPMessage(_data);
@@ -142,13 +145,7 @@ contract DropifyCrosschain is CCIPReceiver {
         );
 
         return messageId;
-    }
-
-
-    function receiveClaimAirdrop(address _caller, uint64 _chain, CrosschainClaimParams memory params) public onlyAuthorizedCrosschain(msg.sender, chain){ 
-
-        // TODO: Disperse the funds from the vault to the claimer
-        emit AidropClaimed(params.localAirdropId, params.claimer, params.nullifer, params.claimAttestationId, airdrops[params.localAirdropId].tokensPerClaim);
+        
     }
 
     function _ccipReceive(
@@ -156,7 +153,22 @@ contract DropifyCrosschain is CCIPReceiver {
     )
         internal
         override
-    {}
+          onlyAuthorizedCrosschain(
+            abi.decode(any2EvmMessage.sender, (address)),
+            any2EvmMessage.sourceChainSelector
+        )
+    {
+        CrosschainClaim memory claim = abi.decode(any2EvmMessage.data, (CrosschainClaim));
+        if(nullifiers[claim.localAirdropId][claim.nullifier]) revert HumanAlreadyClaimed(claim.localAirdropId, claim.nullifier);
+        nullifiers[claim.localAirdropId][claim.nullifier] = true;
+
+        CrosschainAirdrop memory airdrop = airdrops[claim.localAirdropId];
+        if(airdrop.tokensClaimed + airdrop.tokensPerClaim > airdrop.tokenAmount) revert VaultDepleted(claim.localAirdropId, airdrop.tokensClaimed, airdrop.tokensPerClaim, airdrop.tokenAmount);
+        airdrops[claim.localAirdropId].tokensClaimed += airdrop.tokensPerClaim;
+
+        IVault(airdrop.vaultAddress).releaseTokens(claim.claimer, airdrop.tokensPerClaim);
+        emit AidropClaimed(claim.localAirdropId, claim.claimer, claim.nullifier, airdrop.tokensPerClaim);      
+    }
 
     function _buildCCIPMessage(
         bytes memory _data
@@ -167,7 +179,7 @@ contract DropifyCrosschain is CCIPReceiver {
                 data: _data, 
                 tokenAmounts: new Client.EVMTokenAmount[](0), 
                 extraArgs: Client._argsToBytes(
-                    Client.EVMExtraArgsV1({gasLimit: 300_000})
+                    Client.EVMExtraArgsV1({gasLimit: 800_000})
                 ),
                 feeToken: address(0)
             });

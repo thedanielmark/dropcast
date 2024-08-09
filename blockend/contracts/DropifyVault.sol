@@ -15,6 +15,7 @@ contract DropifyVault {
     uint256 public amount;
     uint256 public tokensPerClaim;
     string public metadata;
+    address public coreAddress;
 
     constructor() {
         initialized=true;
@@ -33,18 +34,23 @@ contract DropifyVault {
         _;
     }
 
-    function initialize(address _token, uint256 _amount, uint256 _tokensPerClaim, string memory _metadata) public onlyInitializing {
+    modifier onlyCore{
+        require(msg.sender == coreAddress, "Not authorized");
+        _;
+    }
+
+    function initialize(address _token, address _coreAddress, uint256 _amount, uint256 _tokensPerClaim, string memory _metadata) external onlyInitializing {
         initialized=true;
         token=IERC20(_token);
         amount=_amount;
         tokensPerClaim=_tokensPerClaim;
         metadata=_metadata;
-
+        coreAddress=_coreAddress;
         emit VaultInitialized(_token, _amount, _tokensPerClaim, _metadata);
     }
 
 
-    function releaseTokens(address _to, uint256 _amount) public onlyInitialized {
+    function releaseTokens(address _to, uint256 _amount) external onlyInitialized onlyCore{
         token.transfer(_to, _amount);
 
         emit TokensReleased(_to, _amount);

@@ -10,15 +10,18 @@ import { NO_EXPIRATION_TIME, EMPTY_UID } from "@ethereum-attestation-service/eas
 import {CCIPReceiver} from "@chainlink/contracts-ccip/src/v0.8/ccip/applications/CCIPReceiver.sol";
 import {IRouterClient} from "@chainlink/contracts-ccip/src/v0.8/ccip/interfaces/IRouterClient.sol";
 import {Client} from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.sol";
+import "./interface/IVault.sol";
 
 error NotOwner(address caller);
 error WorldCoinVerificationFailed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, bytes proof);
-error HumanAlreadyClaimed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, bytes proof);
+error HumanAlreadyClaimed(uint256 airdropId, uint256 nullifierHash);
 error NotEnoughCrosschainFee(uint256 balance, uint256 fee);
-error NotAuthorizedCrosschain(uint64 chain, address caller, bool isChainlink);
+error NotAuthorizedCrosschain(uint64 chain, address caller);
 error VaultInitFailed(address vaultAddress);
 error NotEnoughAllowance(uint256 tokenAmount);
 error InvalidEAS();
+error InvalidAirdropId(uint256 airdropId);
+error VaultDepleted(uint256 airdropId, uint256 tokensClaimed, uint256 tokensPerClaim, uint256 tokenAmount);
 
 contract DropifyCore is CCIPReceiver {
 
@@ -75,14 +78,29 @@ contract DropifyCore is CCIPReceiver {
         string metadata;
     }
 
-    struct CreateAttestationEncodeParams{
+    struct CrosschainClaim{
         uint256 localAirdropId;
+        address claimer;
+        uint256 nullifier;
+    }
+
+    struct CreateAttestationEncodeParams{
+        uint256 airdropId;
+        uint64 chainId;
         address vaultAddress;
         address tokenAddress;
         uint256 tokenAmount;
         uint256 tokensPerClaim;
         address creator;
         string metadata;
+    }
+
+    struct ClaimAttestationEncodeParams{
+        uint256 airdropId;
+        uint64 chainId;
+        uint256 worldcoinNullifier;
+        address claimer;
+        uint256 amountClaimed;
     }
 
     struct Humanness {
@@ -99,8 +117,8 @@ contract DropifyCore is CCIPReceiver {
     address public vaultImplementation;
     bytes32 public createAirdropSchema;
     bytes32 public claimAirdropSchema;
-    mapping(uint64=>address) public chainlinkCcipDeployments;
-    mapping(uint64=>address) public hyperlaneDeployments;
+    mapping(uint64=>address) public crosschainDeployments;
+    mapping(uint64=>uint64) public chainToSelectors;
 
     bool public initialized;
     uint64 public chainId;
@@ -120,9 +138,10 @@ contract DropifyCore is CCIPReceiver {
         claimAirdropSchema = _params.claimAirdropSchema;
     }
 
-    event AirdropCreated(uint256 airdropId, uint64 chain, bytes32 attestationId, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
-    event AidropClaimed(uint256 airdropId, uint256 attestationId, address  claimerAddress, uint256 nullifierHash, uint256 amountClaimed);
-
+    event AirdropCreated(uint256 airdropId, uint256 localAirdropId, uint64 chain, bytes32 attestationId, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
+    event AirdropClaimed(uint256 airdropId, bytes32 claimAttestationId, address claimerAddress, uint256 nullifierHash, uint256 amountClaimed);
+    event AirdropCrosschainClaimed(uint256 airdropId, uint64 chainId, bytes32 crosschainMessageId, bytes32 claimAttestationId, address claimerAddress, uint256 nullifierHash, uint256 amountClaimed);
+   
     modifier onlyInitialized{
         if(!initialized) revert("Contract not initialized");
         _;
@@ -135,18 +154,14 @@ contract DropifyCore is CCIPReceiver {
         _;
     }
 
-    modifier onlyAuthorizedCrosschain(address _caller, uint64 _chain, bool isChainlink){
-        if(isChainlink){
-            if(chainlinkCcipDeployments[_chain] != _caller) revert NotAuthorizedCrosschain(_chain, _caller, isChainlink);
-        }else{
-            if(hyperlaneDeployments[_chain] != _caller) revert NotAuthorizedCrosschain(_chain, _caller, isChainlink);
-        }
+    modifier onlyAuthorizedCrosschain(address _caller, uint64 _chain){
+        if(crosschainDeployments[_chain] != _caller) revert NotAuthorizedCrosschain(_chain, _caller);
         _;
     }
 
-    function initalize(address[] memory _hyperlaneAddresses, uint64[] memory _hyperlaneSelectors, address[] memory _chainlinkAddresses, uint64[] memory _chainlinkSelectors) public onlyOwner{
-        for(uint i=0; i < _chainlinkAddresses.length; i++) chainlinkCcipDeployments[_chainlinkSelectors[i]] = _chainlinkAddresses[i];
-        for(uint i=0; i < _hyperlaneAddresses.length; i++) hyperlaneDeployments[_hyperlaneSelectors[i]] = _hyperlaneAddresses[i];
+    function initalize(address[] memory _chainlinkAddresses, uint64[] memory _chainIds,  uint64[] memory _chainlinkSelectors) public onlyOwner{
+        for(uint i=0; i < _chainlinkAddresses.length; i++) crosschainDeployments[_chainlinkSelectors[i]] = _chainlinkAddresses[i];
+        for(uint i=0; i < _chainIds.length; i++) chainToSelectors[_chainIds[i]] = _chainlinkSelectors[i];
         initialized=true;
     }
 
@@ -158,6 +173,7 @@ contract DropifyCore is CCIPReceiver {
         bytes memory initData = abi.encodeWithSelector(
             INITIALIZE_VAULT_METHOD_ID,
             params.tokenAddress,
+            address(this),
             params.tokenAmount,
             params.tokensPerClaim,
             params.metadata
@@ -175,7 +191,7 @@ contract DropifyCore is CCIPReceiver {
                 expirationTime: NO_EXPIRATION_TIME,
                 revocable: false, 
                 refUID: EMPTY_UID,
-                data: _getCreateAttestationEncodedData(CreateAttestationEncodeParams(localAirdropIds, vaultAddress, params.tokenAddress, params.tokenAmount, params.tokensPerClaim, msg.sender, params.metadata)),
+                data: _getCreateAttestationEncodedData(CreateAttestationEncodeParams(aidropIds, chainId, vaultAddress, params.tokenAddress, params.tokenAmount, params.tokensPerClaim, msg.sender, params.metadata)),
                 value: 0 
             })
             })
@@ -195,7 +211,7 @@ contract DropifyCore is CCIPReceiver {
             claimAttestations: new bytes32[](0)
         });
 
-        emit AirdropCreated(aidropIds, chainId, _attestationId, vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
+        emit AirdropCreated(aidropIds, localAirdropIds, chainId, _attestationId, vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
         aidropIds++;
         localAirdropIds++;
     }
@@ -208,8 +224,7 @@ contract DropifyCore is CCIPReceiver {
         override
         onlyAuthorizedCrosschain(
             abi.decode(any2EvmMessage.sender, (address)),
-            any2EvmMessage.sourceChainSelector,
-            true
+            any2EvmMessage.sourceChainSelector
         )
     {
         (CrosschainAirdrop memory airdropParams)=abi.decode(any2EvmMessage.data, (CrosschainAirdrop));
@@ -222,9 +237,9 @@ contract DropifyCore is CCIPReceiver {
                 expirationTime: NO_EXPIRATION_TIME,
                 revocable: false, 
                 refUID: EMPTY_UID,
-                data: _getCreateAttestationEncodedData(CreateAttestationEncodeParams(airdropParams.localAirdropId, airdropParams.vaultAddress, airdropParams.tokenAddress, airdropParams.tokenAmount, airdropParams.tokensPerClaim, airdropParams.creator, airdropParams.metadata)),
+                data: _getCreateAttestationEncodedData(CreateAttestationEncodeParams(aidropIds, airdropParams.chainId, airdropParams.vaultAddress, airdropParams.tokenAddress, airdropParams.tokenAmount, airdropParams.tokensPerClaim, airdropParams.creator, airdropParams.metadata)),
                 value: 0 
-            })
+                })
             })
         );
         
@@ -242,15 +257,76 @@ contract DropifyCore is CCIPReceiver {
             claimAttestations: new bytes32[](0)
         });
 
-        emit AirdropCreated(aidropIds, airdropParams.chainId, _attestationId, airdropParams.vaultAddress, airdropParams.tokenAmount, airdropParams.tokensPerClaim, airdropParams.metadata);
+        emit AirdropCreated(aidropIds, airdropParams.localAirdropId, airdropParams.chainId, _attestationId, airdropParams.vaultAddress, airdropParams.tokenAmount, airdropParams.tokensPerClaim, airdropParams.metadata);
     }
 
-    function claimAirdrop(uint256 airdropId, address claimerAddress, uint256 amountClaimed, uint256 attestationId, Humanness memory humanness) public onlyOwner onlyInitialized {
+    function claimAirdrop(uint256 airdropId, address claimer, Humanness memory humanness) public payable onlyOwner onlyInitialized {
+        if(airdropId >= aidropIds) revert InvalidAirdropId(airdropId);
+        Airdrop memory airdrop = airdrops[airdropId];
+        
+        if(nullifiers[airdropId][humanness.nullifier]) revert HumanAlreadyClaimed(airdropId, humanness.nullifier);
+        nullifiers[airdropId][humanness.nullifier] = true;
+
         // TODO: Verify Worldcoin proof
 
-        // TODO: Make an onchain attestation and update the state in Airdrop.
-        // TODO: Add chain Id
-        emit AidropClaimed(airdropId, attestationId, claimerAddress, humanness.nullifier, amountClaimed);
+        if(airdrop.tokensClaimed + airdrop.tokensPerClaim > airdrop.tokenAmount) revert VaultDepleted(airdropId, airdrop.tokensClaimed, airdrop.tokensPerClaim, airdrop.tokenAmount);
+        airdrops[airdropId].tokensClaimed += airdrop.tokensPerClaim;       
+
+        bytes32 _attestationId = _eas.attest(
+            AttestationRequest({
+                schema: claimAirdropSchema,
+                data: AttestationRequestData({
+                recipient: claimer, 
+                expirationTime: NO_EXPIRATION_TIME,
+                revocable: false, 
+                refUID: airdrop.createdAttestationId,
+                data: _getClaimAttestationEncodedData(ClaimAttestationEncodeParams(airdropId, airdrop.chainId, humanness.nullifier, claimer, airdrop.tokensPerClaim)),
+                value: 0 
+                })
+            })
+        );
+
+        if(chainId == airdrop.chainId){
+            IVault(airdrop.vaultAddress).releaseTokens(claimer, airdrop.tokensPerClaim);
+            emit AirdropClaimed(airdropId, _attestationId, claimer, humanness.nullifier, airdrop.tokensPerClaim);
+        }else{
+            bytes memory _data=abi.encode(CrosschainClaim(airdropId, claimer, humanness.nullifier));
+            bytes32 _crosschainMessageId = _sendMessagePayNative(msg.value, chainToSelectors[airdrop.chainId], _data);
+            emit AirdropCrosschainClaimed(airdropId, airdrops[airdropId].chainId, _crosschainMessageId, _attestationId, claimer, humanness.nullifier, airdrop.tokensPerClaim);
+        }
+    }
+
+    function _sendMessagePayNative(uint256 _feePaid, uint64 _chainSelector, bytes memory _data) internal returns (bytes32 messageId)
+    {
+        Client.EVM2AnyMessage memory evm2AnyMessage = _buildCCIPMessage(crosschainDeployments[_chainSelector], _data);
+        IRouterClient router = IRouterClient(this.getRouter());
+        uint256 fees = router.getFee(_chainSelector, evm2AnyMessage);
+
+        if (fees > _feePaid)
+            revert NotEnoughCrosschainFee(_feePaid, fees);
+
+        messageId = router.ccipSend{value: _feePaid}(
+            _chainSelector,
+            evm2AnyMessage
+        );
+
+        return messageId;
+    }
+
+    function _buildCCIPMessage(
+        address _receiver,
+        bytes memory _data
+    ) private pure returns (Client.EVM2AnyMessage memory) {
+        return
+            Client.EVM2AnyMessage({
+                receiver: abi.encode(_receiver),
+                data: _data, 
+                tokenAmounts: new Client.EVMTokenAmount[](0), 
+                extraArgs: Client._argsToBytes(
+                    Client.EVMExtraArgsV1({gasLimit: 400_000})
+                ),
+                feeToken: address(0)
+            });
     }
     
     function _deployProxy(
@@ -281,7 +357,18 @@ contract DropifyCore is CCIPReceiver {
     }
 
     function _getCreateAttestationEncodedData(CreateAttestationEncodeParams memory encodeParams) internal pure returns (bytes memory){
-        return abi.encode(encodeParams.localAirdropId, encodeParams.vaultAddress, encodeParams.tokenAddress, encodeParams.tokenAmount, encodeParams.tokensPerClaim, encodeParams.creator, encodeParams.metadata);
+        return abi.encode(encodeParams.airdropId, encodeParams.chainId, encodeParams.vaultAddress, encodeParams.tokenAddress, encodeParams.tokenAmount, encodeParams.tokensPerClaim, encodeParams.creator, encodeParams.metadata);
+    }
+
+    function _getClaimAttestationEncodedData(ClaimAttestationEncodeParams memory encodeParams) internal pure returns(bytes memory){
+        return abi.encode(encodeParams.airdropId, encodeParams.chainId, encodeParams.worldcoinNullifier, encodeParams.claimer, encodeParams.amountClaimed);
+    }
+
+    function getFee(CrosschainAirdrop memory params) external view returns (uint256){
+        bytes memory _data=abi.encode(params);
+        Client.EVM2AnyMessage memory evm2AnyMessage = _buildCCIPMessage(msg.sender, _data);
+        IRouterClient router = IRouterClient(this.getRouter());
+        return router.getFee(chainToSelectors[params.chainId], evm2AnyMessage);
     }
 
 }
