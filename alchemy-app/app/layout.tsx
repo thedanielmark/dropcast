@@ -26,7 +26,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className="bg-zinc-900 text-white">
         <Providers initialState={initialState}>{children}</Providers>
       </body>
     </html>
