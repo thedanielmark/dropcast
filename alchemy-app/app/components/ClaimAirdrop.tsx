@@ -13,27 +13,29 @@ import {
   useAccount,
   useSendUserOperation,
   useSmartAccountClient,
+  useUser,
 } from "@account-kit/react";
 import { CORE_ABI, CORE_ADDRESS } from "../utils/constants";
 import { decodeAbiParameters } from "viem";
+import getWorldcoinVerificationData from "../utils/getWorldcoinVerificationData";
 export default function ClaimAirdrop() {
-  const { address } = useAccount({
-    type: "LightAccount",
-  });
-  const [airdropId, setAirdropId] = useState("");
+  const user = useUser();
+  const [airdropId, setAirdrpId] = useState("");
   const [status, setStatus] = useState<Status[]>([]);
   const { client } = useSmartAccountClient({ type: "LightAccount" });
   const [worldcoin, setWorldCoin] = useState<any>(null);
-  const [worldVerified, setWorldVerified] = useState<boolean>(true);
+  const [worldVerified, setWorldVerified] = useState<boolean>(false);
   const { sendUserOperation, isSendingUserOperation } = useSendUserOperation({
     client,
     waitForTxn: true,
-    onSuccess: ({ hash, request }) => {
+    onSuccess: (out) => {
+      console.log("Response");
+      console.log(out);
       setStatus([
         ...status,
         {
           error: false,
-          message: `Transaction ${hash} sent successfully`,
+          message: `Transaction ${out.hash} sent successfully`,
         },
       ]);
     },
@@ -50,6 +52,19 @@ export default function ClaimAirdrop() {
   useEffect(() => {
     console.log("WORLDCOIN");
     console.log(worldcoin);
+    if (worldcoin != null) {
+      let data = getWorldcoinVerificationData(
+        "0x0429A2Da7884CA14E53142988D5845952fE4DF6a",
+        worldcoin
+      );
+      sendUserOperation({
+        uo: {
+          target: CORE_ADDRESS as `0x${string}`,
+          data: data,
+          value: BigInt("0"),
+        },
+      });
+    }
   }, [worldcoin]);
 
   const unpack = (proof: `0x${string}`) => {
@@ -91,7 +106,7 @@ export default function ClaimAirdrop() {
         type="string"
         className="input"
         value={airdropId}
-        onChange={(e) => setAirdropId(e.target.value)}
+        onChange={(e) => setAirdrpId(e.target.value)}
       />
       <button
         className="block mx-auto btn btn-primary mt-6"
@@ -112,20 +127,26 @@ export default function ClaimAirdrop() {
       {worldVerified ? (
         <p className="mt-4">WORLDCOIN VERIFIED 🥰</p>
       ) : (
-        <IDKitWidget
-          app_id={
-            (process.env.NEXT_PUBLIC_WORLDCOIN_APP_ID as `app_${string}`) ||
-            "app_"
-          }
-          action="unique-human-airdrop"
-          onSuccess={onSuccess}
-          signal={address}
-        >
-          {({ open }) => (
-            // This is the button that will open the IDKit modal
-            <button onClick={open}>Verify with World ID</button>
-          )}
-        </IDKitWidget>
+        user != null && (
+          <IDKitWidget
+            app_id={
+              (process.env.NEXT_PUBLIC_WORLDCOIN_APP_ID as `app_${string}`) ||
+              "app_"
+            }
+            action="unique-human-airdrop"
+            onSuccess={onSuccess}
+            onError={(error) => {
+              console.log(error);
+            }}
+            signal={user.address}
+            verification_level={VerificationLevel.Orb}
+          >
+            {({ open }) => (
+              // This is the button that will open the IDKit modal
+              <button onClick={open}>Verify with World ID</button>
+            )}
+          </IDKitWidget>
+        )
       )}
       <button
         className="block mx-auto btn btn-primary mt-6"

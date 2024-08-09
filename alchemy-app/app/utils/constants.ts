@@ -1,4 +1,4 @@
-export const CORE_ADDRESS = "0x85ac9f42C03f2fAff9D42C504abD296395e71Cc5";
+export const CORE_ADDRESS = "0xaC9b9540832281Bf984306cc6D99FeD3B9395ED8";
 export const CROSSCHAIN_ADDRESSES = {
   421614: "0x4a0DC91781A116e83770A17AD09b63fa3E50d7Ce",
 };
@@ -42,6 +42,21 @@ export const CORE_ABI = [
             internalType: "bytes32",
             name: "claimAirdropSchema",
             type: "bytes32",
+          },
+          {
+            internalType: "contract IWorldID",
+            name: "worldId",
+            type: "address",
+          },
+          {
+            internalType: "string",
+            name: "appId",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "action",
+            type: "string",
           },
         ],
         internalType: "struct DropifyCore.ConstructorParams",
@@ -535,21 +550,26 @@ export const CORE_ABI = [
         type: "uint256",
       },
       {
-        internalType: "address",
-        name: "claimer",
-        type: "address",
-      },
-      {
         components: [
+          {
+            internalType: "address",
+            name: "signal",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "root",
+            type: "uint256",
+          },
           {
             internalType: "uint256",
             name: "nullifier",
             type: "uint256",
           },
           {
-            internalType: "bytes",
+            internalType: "uint256[8]",
             name: "proof",
-            type: "bytes",
+            type: "uint256[8]",
           },
         ],
         internalType: "struct DropifyCore.Humanness",
@@ -834,6 +854,47 @@ export const CORE_ABI = [
         internalType: "address",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "signal",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "root",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "nullifier",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256[8]",
+            name: "proof",
+            type: "uint256[8]",
+          },
+        ],
+        internalType: "struct DropifyCore.Humanness",
+        name: "humanness",
+        type: "tuple",
+      },
+    ],
+    name: "verifyWorldProof",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
