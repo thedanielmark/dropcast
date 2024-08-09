@@ -17,7 +17,7 @@ export default function Home() {
     <main className="flex items-center justify-center min-h-screen">
       {/* <p className="text-3xl font-bold">DROPIFY</p> */}
       {/* <LogIn /> */}
-      {user ? <CreateAirdrop /> : <p>Log in to get started</p>}
+      {user ? <ClaimAirdrop /> : <p>Log in to get started</p>}
       <WorldcoinVerification />
     </main>
   );

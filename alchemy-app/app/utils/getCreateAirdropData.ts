@@ -12,7 +12,6 @@ export default function getCreateAirdropData(
     functionName: "createAirdrop",
     args: [
       [tokenAddress, BigInt(tokenAmount), BigInt(tokensPerClaim), metadata],
-      [BigInt("1"), "0x0429A2Da7884CA14E53142988D5845952fE4DF6a"],
     ],
   });
 }

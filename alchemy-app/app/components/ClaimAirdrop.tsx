@@ -20,7 +20,7 @@ export default function ClaimAirdrop() {
   const { address } = useAccount({
     type: "LightAccount",
   });
-  const [airdropId, setAirdrpId] = useState("");
+  const [airdropId, setAirdropId] = useState("");
   const [status, setStatus] = useState<Status[]>([]);
   const { client } = useSmartAccountClient({ type: "LightAccount" });
   const [worldcoin, setWorldCoin] = useState<any>(null);
@@ -63,6 +63,26 @@ export default function ClaimAirdrop() {
     console.log(result);
     setWorldVerified(true);
   };
+
+  // function to get the airdrop details from the contract
+  const getAirdropDetails = async (airdropId: string) => {
+    const data = await client?.readContract({
+      abi: CORE_ABI,
+      address: CORE_ADDRESS,
+      functionName: "airdrops",
+      args: [airdropId],
+    });
+
+    console.log("Airdrop data: ", data);
+  };
+
+  useEffect(() => {
+    if (airdropId) {
+      console.log("Getting Airdrop Details");
+      getAirdropDetails(airdropId);
+    }
+  }, [airdropId]);
+
   return (
     <div>
       <p className="text-2xl font-semibold pb-12">Claim Airdrop</p>
@@ -71,11 +91,12 @@ export default function ClaimAirdrop() {
         type="string"
         className="input"
         value={airdropId}
-        onChange={(e) => setAirdrpId(e.target.value)}
+        onChange={(e) => setAirdropId(e.target.value)}
       />
       <button
         className="block mx-auto btn btn-primary mt-6"
         onClick={async () => {
+          console.log(airdropId);
           const data = await client?.readContract({
             abi: CORE_ABI,
             address: CORE_ADDRESS,
