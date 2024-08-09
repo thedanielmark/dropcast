@@ -8,9 +8,9 @@
   },
   "instances": [
     {
-      "abi": "ftshares",
+      "abi": "gb",
       "address": "0x85ac9f42C03f2fAff9D42C504abD296395e71Cc5",
-      "startBlock": 0,
+      "startBlock": 13724736,
       "chain": "base"
     }
   ]
