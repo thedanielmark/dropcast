@@ -200,4 +200,11 @@ contract DropifyCrosschain is CCIPReceiver {
             );
     }
 
+    function getFee(CrosschainAirdrop memory params) external view returns (uint256){
+        bytes memory _data=abi.encode(params);
+        Client.EVM2AnyMessage memory evm2AnyMessage = _buildCCIPMessage(_data);
+        IRouterClient router = IRouterClient(this.getRouter());
+        return router.getFee(coreSelector, evm2AnyMessage);
+    }
+
 }

@@ -145,12 +145,12 @@ contract DropifyCore is CCIPReceiver {
     }
 
     function initalize(address[] memory _hyperlaneAddresses, uint64[] memory _hyperlaneSelectors, address[] memory _chainlinkAddresses, uint64[] memory _chainlinkSelectors) public onlyOwner{
-        for(uint i=0; i < _chainlinkAddresses.length; i++) _chainlinkAddresses[_chainlinkSelectors[i]] = _chainlinkAddresses[i];
+        for(uint i=0; i < _chainlinkAddresses.length; i++) chainlinkCcipDeployments[_chainlinkSelectors[i]] = _chainlinkAddresses[i];
         for(uint i=0; i < _hyperlaneAddresses.length; i++) hyperlaneDeployments[_hyperlaneSelectors[i]] = _hyperlaneAddresses[i];
         initialized=true;
     }
 
-    function createAirdrop(CreateAirdropParams memory params) public /*onlyInitialized*/{
+    function createAirdrop(CreateAirdropParams memory params) public onlyInitialized{
 
         if(IERC20(params.tokenAddress).allowance(msg.sender, address(this)) < params.tokenAmount) revert NotEnoughAllowance(params.tokenAmount);
 
@@ -164,6 +164,8 @@ contract DropifyCore is CCIPReceiver {
         );
         (bool success, ) = vaultAddress.call(initData);
         if(!success) revert VaultInitFailed(vaultAddress);
+
+        IERC20(params.tokenAddress).transferFrom(msg.sender, vaultAddress, params.tokenAmount);
 
         bytes32 _attestationId = _eas.attest(
             AttestationRequest({
@@ -193,7 +195,7 @@ contract DropifyCore is CCIPReceiver {
             claimAttestations: new bytes32[](0)
         });
 
-        emit AirdropCreated(aidropIds, chainId,_attestationId, vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
+        emit AirdropCreated(aidropIds, chainId, _attestationId, vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
         aidropIds++;
         localAirdropIds++;
     }
@@ -240,11 +242,10 @@ contract DropifyCore is CCIPReceiver {
             claimAttestations: new bytes32[](0)
         });
 
-
         emit AirdropCreated(aidropIds, airdropParams.chainId, _attestationId, airdropParams.vaultAddress, airdropParams.tokenAmount, airdropParams.tokensPerClaim, airdropParams.metadata);
     }
 
-    function claimAirdrop(uint256 airdropId, address claimerAddress, uint256 amountClaimed, uint256 attestationId, Humanness memory humanness) public /*onlyOwner onlyInitialized*/ {
+    function claimAirdrop(uint256 airdropId, address claimerAddress, uint256 amountClaimed, uint256 attestationId, Humanness memory humanness) public onlyOwner onlyInitialized {
         // TODO: Verify Worldcoin proof
 
         // TODO: Make an onchain attestation and update the state in Airdrop.

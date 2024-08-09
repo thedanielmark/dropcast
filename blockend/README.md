@@ -61,6 +61,13 @@ Contracts for Dropify.
 1. Create Airdrop - https://base-sepolia.easscan.org/schema/view/0xa47b91299da9a0bd968e0030568703a00ad0d851bd9c32efb98a53e39750ed42
 2. Claim Airdrop - https://base-sepolia.easscan.org/schema/view/0x82ba92089cfdf9cd4340c24b35356aabf92e5bac94f264af89e060cb4896bbcd
 
+## Deploy Commands
+
+yarn hardhat deploy-vault --verify true --network baseSepolia
+yarn hardhat deploy-vault --verify true --network arbitrumSepolia
+yarn hardhat deploy-core --verify true --network baseSepolia
+yarn hardhat deploy-crosschain --verify true --network arbitrumSepolia
+
 ## Deployments
 
 1. Vault Implementation (Base) - 0x7c249c42CF87deCf9f424FcBb851397599C3073E

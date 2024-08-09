@@ -16,14 +16,13 @@ task("deploy-crosschain", "Deploys the DropifyCrosschain contract")
     const dropifyCrosschainContractFactory = await ethers.getContractFactory(
       "DropifyCrosschain"
     );
-
     const args = [
       networks[network.name].chainId,
-      "84532",
-      "0xbf1aE23f8dEEf35F4266dBB29bd030a439B6216c",
-      "10344971235874465080",
-      "0xC7297019FCDA5774c22180cd7E1801fed7EC10A9",
-      "0x2a9C5afB0d0e4BAb2BCdaE109EC4b0c4Be15a165",
+      networks.baseSepolia.chainId,
+      networks.baseSepolia.coreAddress,
+      networks.baseSepolia.chainlinkSelector,
+      networks[network.name].vaultAddress,
+      networks[network.name].ccipRouter,
     ];
     const dropifyCrosschainContract =
       await dropifyCrosschainContractFactory.deploy(args);

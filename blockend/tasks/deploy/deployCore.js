@@ -16,10 +16,11 @@ task("deploy-core", "Deploys the DropifyCore contract")
     const dropifyCoreContractFactory = await ethers.getContractFactory(
       "DropifyCore"
     );
+
     const args = [
-      "84532",
-      "0xf3Dfb114CFAe91FC391e3E76f208eBbF595dCA82",
-      "0xD3b06cEbF099CE7DA4AcCf578aaebFDBd6e88a93",
+      networks[network.name].chainId,
+      networks[network.name].vaultAddress,
+      networks[network.name].ccipRouter,
       "0xD3b06cEbF099CE7DA4AcCf578aaebFDBd6e88a93",
       "0x4200000000000000000000000000000000000021",
       "0xa47b91299da9a0bd968e0030568703a00ad0d851bd9c32efb98a53e39750ed42",
