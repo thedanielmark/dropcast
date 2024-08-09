@@ -16,7 +16,6 @@ task("deploy-core", "Deploys the DropifyCore contract")
     const dropifyCoreContractFactory = await ethers.getContractFactory(
       "DropifyCore"
     );
-
     const args = [
       "84532",
       "0xf3Dfb114CFAe91FC391e3E76f208eBbF595dCA82",
@@ -26,6 +25,7 @@ task("deploy-core", "Deploys the DropifyCore contract")
       "0xa47b91299da9a0bd968e0030568703a00ad0d851bd9c32efb98a53e39750ed42",
       "0x82ba92089cfdf9cd4340c24b35356aabf92e5bac94f264af89e060cb4896bbcd",
     ];
+
     const dropifyCoreContract = await dropifyCoreContractFactory.deploy(args);
 
     console.log(

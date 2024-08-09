@@ -229,8 +229,6 @@ contract DropifyCore {
             );
     }
 
-
-
     function _getCreateAttestationEncodedData(CreateAttestationEncodeParams memory encodeParams) internal pure returns (bytes memory){
         return abi.encode(encodeParams.localAirdropId, encodeParams.vaultAddress, encodeParams.tokenAddress, encodeParams.tokenAmount, encodeParams.tokensPerClaim, encodeParams.creator, encodeParams.metadata);
     }
