@@ -9,11 +9,4 @@ interface Props {
 }
 
 // This is the place responsible for grouping all providers from the app
-export const MainProvider = ({ children }: Props) => {
-  const initialState = cookieToInitialState(config, headers().get('cookie') ?? undefined);
-  return (
-    <AlchemyAccountProvider config={config} queryClient={queryClient} initialState={initialState}>
-      {children}
-    </AlchemyAccountProvider>
-  );
-};
+export const MainProvider = ({ children }: Props) => <div>{children}</div>;
