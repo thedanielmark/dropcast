@@ -13,14 +13,13 @@ import {
   useAccount,
   useSendUserOperation,
   useSmartAccountClient,
+  useUser,
 } from "@account-kit/react";
 import { CORE_ABI, CORE_ADDRESS } from "../utils/constants";
 import { decodeAbiParameters } from "viem";
 import getWorldcoinVerificationData from "../utils/getWorldcoinVerificationData";
 export default function ClaimAirdrop() {
-  const { address } = useAccount({
-    type: "LightAccount",
-  });
+  const user = useUser();
   const [airdropId, setAirdrpId] = useState("");
   const [status, setStatus] = useState<Status[]>([]);
   const { client } = useSmartAccountClient({ type: "LightAccount" });
@@ -30,7 +29,7 @@ export default function ClaimAirdrop() {
     client,
     waitForTxn: true,
     onSuccess: (out) => {
-      console.log("Respponse");
+      console.log("Response");
       console.log(out);
       setStatus([
         ...status,
@@ -107,20 +106,26 @@ export default function ClaimAirdrop() {
       {worldVerified ? (
         <p className="mt-4">WORLDCOIN VERIFIED 🥰</p>
       ) : (
-        <IDKitWidget
-          app_id={
-            (process.env.NEXT_PUBLIC_WORLDCOIN_APP_ID as `app_${string}`) ||
-            "app_"
-          }
-          action="unique-human-airdrop"
-          onSuccess={onSuccess}
-          signal={address}
-        >
-          {({ open }) => (
-            // This is the button that will open the IDKit modal
-            <button onClick={open}>Verify with World ID</button>
-          )}
-        </IDKitWidget>
+        user != null && (
+          <IDKitWidget
+            app_id={
+              (process.env.NEXT_PUBLIC_WORLDCOIN_APP_ID as `app_${string}`) ||
+              "app_"
+            }
+            action="unique-human-airdrop"
+            onSuccess={onSuccess}
+            onError={(error) => {
+              console.log(error);
+            }}
+            signal={user.address}
+            verification_level={VerificationLevel.Orb}
+          >
+            {({ open }) => (
+              // This is the button that will open the IDKit modal
+              <button onClick={open}>Verify with World ID</button>
+            )}
+          </IDKitWidget>
+        )
       )}
       <button
         className="block mx-auto btn btn-primary mt-6"

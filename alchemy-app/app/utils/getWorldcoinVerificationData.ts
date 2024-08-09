@@ -1,4 +1,4 @@
-import { encodeFunctionData } from "viem";
+import { encodeFunctionData, hexToBigInt } from "viem";
 import { CORE_ABI } from "./constants";
 
 export default function getWorldcoinVerificationData(
@@ -11,8 +11,8 @@ export default function getWorldcoinVerificationData(
     args: [
       [
         address,
-        worldcoin.merkle_root,
-        worldcoin.nullifier_hash,
+        hexToBigInt(worldcoin.merkle_root),
+        hexToBigInt(worldcoin.nullifier_hash),
         worldcoin.proofs,
       ],
     ],
