@@ -198,19 +198,6 @@ contract DropifyCore is CCIPReceiver {
         emit AirdropCreated(aidropIds, airdropParams.localAirdropId, airdropParams.chainId, _attestationId, airdropParams.vaultAddress, airdropParams.tokenAmount, airdropParams.tokensPerClaim, airdropParams.metadata);
     }
 
-    function verifyWorldProof(Humanness memory humanness) external view returns(bool){
-        worldId.verifyProof(
-            humanness.root,
-            groupId,
-            abi.encodePacked(humanness.signal).hashToField(),
-            humanness.nullifier,
-            externalNullifierHash,
-            humanness.proof
-        );
-
-        return true;
-    }
-
     function claimAirdrop(uint256 airdropId, Humanness memory humanness) external payable onlyOwner onlyInitialized {
         if(airdropId >= aidropIds) revert InvalidAirdropId(airdropId);
         Airdrop memory airdrop = airdrops[airdropId];
@@ -322,11 +309,23 @@ contract DropifyCore is CCIPReceiver {
         return abi.encode(encodeParams.airdropId, encodeParams.chainId, encodeParams.worldcoinNullifier, encodeParams.claimer, encodeParams.amountClaimed);
     }
 
-    function getFee(CrosschainAirdrop memory params) external view returns (uint256){
+    function getFee(uint64 _chainId, CrosschainClaim memory params) external view returns (uint256){
         bytes memory _data=abi.encode(params);
         Client.EVM2AnyMessage memory evm2AnyMessage = _buildCCIPMessage(msg.sender, _data);
         IRouterClient router = IRouterClient(this.getRouter());
-        return router.getFee(chainToSelectors[params.chainId], evm2AnyMessage);
+        return router.getFee(chainToSelectors[_chainId], evm2AnyMessage);
     }
 
+    function verifyWorldProof(Humanness memory humanness) external view returns(bool){
+        worldId.verifyProof(
+            humanness.root,
+            groupId,
+            abi.encodePacked(humanness.signal).hashToField(),
+            humanness.nullifier,
+            externalNullifierHash,
+            humanness.proof
+        );
+
+        return true;
+    }
 }
