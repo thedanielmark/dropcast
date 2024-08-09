@@ -7,6 +7,9 @@ import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IEAS, AttestationRequest, AttestationRequestData } from "@ethereum-attestation-service/eas-contracts/contracts/IEAS.sol";
 import { NO_EXPIRATION_TIME, EMPTY_UID } from "@ethereum-attestation-service/eas-contracts/contracts/Common.sol";
+import {CCIPReceiver} from "@chainlink/contracts-ccip/src/v0.8/ccip/applications/CCIPReceiver.sol";
+import {IRouterClient} from "@chainlink/contracts-ccip/src/v0.8/ccip/interfaces/IRouterClient.sol";
+import {Client} from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.sol";
 
 error NotOwner(address caller);
 error WorldCoinVerificationFailed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, bytes proof);
@@ -17,7 +20,7 @@ error VaultInitFailed(address vaultAddress);
 error NotEnoughAllowance(uint256 tokenAmount);
 error InvalidEAS();
 
-contract DropifyCore {
+contract DropifyCore is CCIPReceiver {
 
     struct CreateAirdropParams{
         address tokenAddress;
@@ -59,6 +62,18 @@ contract DropifyCore {
         bytes32 createdAttestationId;
         bytes32[] claimAttestations;
     }
+    
+    struct CrosschainAirdrop {
+        uint64 chainId;
+        uint256 localAirdropId;
+        address creator;
+        address tokenAddress;
+        uint256 tokenAmount;
+        uint256 tokensPerClaim;
+        uint256 tokensClaimed;
+        address vaultAddress;
+        string metadata;
+    }
 
     struct CreateAttestationEncodeParams{
         uint256 localAirdropId;
@@ -82,8 +97,6 @@ contract DropifyCore {
     uint256 public localAirdropIds;
     address public owner;
     address public vaultImplementation;
-    address public ccipRouter;
-    address public hyperlaneRouter;
     bytes32 public createAirdropSchema;
     bytes32 public claimAirdropSchema;
     mapping(uint64=>address) public chainlinkCcipDeployments;
@@ -94,12 +107,10 @@ contract DropifyCore {
     
     bytes4 public constant INITIALIZE_VAULT_METHOD_ID=bytes4(keccak256("initialize(address,uint256,uint256,string)"));
 
-    constructor(ConstructorParams memory _params){
+    constructor(ConstructorParams memory _params) CCIPReceiver(_params.ccipRouter){
         aidropIds = 0;
         owner = msg.sender;
         vaultImplementation = _params.vaultImplementation;
-        ccipRouter = _params.ccipRouter;
-        hyperlaneRouter = _params.hyperlaneRouter;
         chainId = _params.chainId;
         if (address(_params.eas) == address(0)) {
             revert InvalidEAS();
@@ -187,12 +198,51 @@ contract DropifyCore {
         localAirdropIds++;
     }
 
-    // // TODO: Remove the onlyAuthroizedCrosschain modifier comment
-    // function receiveCreateAirdrop(address crossChainAddress, bool isChainlink, uint64 _chain, CrosshchainCreateAirdropParams memory params) public onlyAuthorizedCrosschain(crossChainAddress, params.chain, isChainlink) onlyInitialized {
-    //     // TODO: Make an on-chain attestation and update the state in Aidrop 
 
-    //     emit AirdropCreated(params.localAirdropId, _chain, bytes32(0), params.vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
-    // }
+     function _ccipReceive(
+        Client.Any2EVMMessage memory any2EvmMessage
+    )
+        internal
+        override
+        onlyAuthorizedCrosschain(
+            abi.decode(any2EvmMessage.sender, (address)),
+            any2EvmMessage.sourceChainSelector,
+            true
+        )
+    {
+        (CrosschainAirdrop memory airdropParams)=abi.decode(any2EvmMessage.data, (CrosschainAirdrop));
+        
+        bytes32 _attestationId = _eas.attest(
+            AttestationRequest({
+                schema: createAirdropSchema,
+                data: AttestationRequestData({
+                recipient: airdropParams.creator, 
+                expirationTime: NO_EXPIRATION_TIME,
+                revocable: false, 
+                refUID: EMPTY_UID,
+                data: _getCreateAttestationEncodedData(CreateAttestationEncodeParams(airdropParams.localAirdropId, airdropParams.vaultAddress, airdropParams.tokenAddress, airdropParams.tokenAmount, airdropParams.tokensPerClaim, airdropParams.creator, airdropParams.metadata)),
+                value: 0 
+            })
+            })
+        );
+        
+        airdrops[aidropIds] = Airdrop({
+            chainId: airdropParams.chainId,
+            localAirdropId: airdropParams.localAirdropId,
+            creator: airdropParams.creator,
+            tokenAddress: airdropParams.tokenAddress,
+            tokenAmount: airdropParams.tokenAmount,
+            tokensPerClaim: airdropParams.tokensPerClaim,
+            tokensClaimed: 0,
+            vaultAddress: airdropParams.vaultAddress,
+            metadata: airdropParams.metadata,
+            createdAttestationId: _attestationId,
+            claimAttestations: new bytes32[](0)
+        });
+
+
+        emit AirdropCreated(aidropIds, airdropParams.chainId, _attestationId, airdropParams.vaultAddress, airdropParams.tokenAmount, airdropParams.tokensPerClaim, airdropParams.metadata);
+    }
 
     function claimAirdrop(uint256 airdropId, address claimerAddress, uint256 amountClaimed, uint256 attestationId, Humanness memory humanness) public /*onlyOwner onlyInitialized*/ {
         // TODO: Verify Worldcoin proof
