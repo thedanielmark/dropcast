@@ -9,43 +9,10 @@ import {CCIPReceiver} from "@chainlink/contracts-ccip/src/v0.8/ccip/applications
 import {IRouterClient} from "@chainlink/contracts-ccip/src/v0.8/ccip/interfaces/IRouterClient.sol";
 import {Client} from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.sol";
 import "./interface/IVault.sol";
-
-error NotOwner(address caller);
-error WorldCoinVerificationFailed(uint256 airdropId, address signal, uint256 root, uint256 nullifierHash, bytes proof);
-error HumanAlreadyClaimed(uint256 airdropId, uint256 nullifierHash);
-error NotAuthorizedCrosschain(uint64 chain, address caller);
-error NotEnoughCrosschainFee(uint256 balance, uint256 fee);
-error VaultInitFailed(address vaultAddress);
-error VaultDepleted(uint256 airdropId, uint256 tokensClaimed, uint256 tokensPerClaim, uint256 totalClaimed);
-error NotEnoughAllowance(uint256 tokenAmount);
+import "./StructsAndErrors.sol";
 
 contract DropifyCrosschain is CCIPReceiver {
-
-    struct CreateAirdropParams{
-        address tokenAddress;
-        uint256 tokenAmount;
-        uint256 tokensPerClaim;
-        string metadata;
-    }
-
-    struct CrosschainClaim{
-        uint256 localAirdropId;
-        address claimer;
-        uint256 nullifier;
-    }
-
-    struct CrosschainAirdrop {
-        uint64 chainId;
-        uint256 localAirdropId;
-        address creator;
-        address tokenAddress;
-        uint256 tokenAmount;
-        uint256 tokensPerClaim;
-        uint256 tokensClaimed;
-        address vaultAddress;
-        string metadata;
-    }
-
+    
     struct ConstructorParams{
         uint64 chainId;
         uint64 coreChainId;
@@ -54,7 +21,6 @@ contract DropifyCrosschain is CCIPReceiver {
         address vaultImplementation;
         address ccipRouter;
     }
-
     mapping(uint256 => CrosschainAirdrop) public airdrops;
     mapping(uint256=>mapping(uint256=>bool)) public nullifiers;
     uint256 public localAirdropIds;
