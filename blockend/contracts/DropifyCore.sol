@@ -76,7 +76,7 @@ contract DropifyCore is CCIPReceiver {
         .hashToField();
     }
 
-    event AirdropCreated(uint256 airdropId, uint256 localAirdropId, uint64 chain, bytes32 attestationId, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
+    event AirdropCreated(uint256 airdropId, uint256 localAirdropId, uint64 chain, bytes32 attestationId, address creator, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
     event AirdropClaimed(uint256 airdropId, bytes32 claimAttestationId, address claimerAddress, uint256 nullifierHash, uint256 amountClaimed);
     event AirdropCrosschainClaimed(uint256 airdropId, uint64 chainId, bytes32 crosschainMessageId, bytes32 claimAttestationId, address claimerAddress, uint256 nullifierHash, uint256 amountClaimed);
    
@@ -149,7 +149,7 @@ contract DropifyCore is CCIPReceiver {
             claimAttestations: new bytes32[](0)
         });
 
-        emit AirdropCreated(aidropIds, localAirdropIds, chainId, _attestationId, vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
+        emit AirdropCreated(aidropIds, localAirdropIds, chainId, _attestationId, msg.sender, vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
         aidropIds++;
         localAirdropIds++;
     }
@@ -195,7 +195,7 @@ contract DropifyCore is CCIPReceiver {
             claimAttestations: new bytes32[](0)
         });
 
-        emit AirdropCreated(aidropIds, airdropParams.localAirdropId, airdropParams.chainId, _attestationId, airdropParams.vaultAddress, airdropParams.tokenAmount, airdropParams.tokensPerClaim, airdropParams.metadata);
+        emit AirdropCreated(aidropIds, airdropParams.localAirdropId, airdropParams.chainId, _attestationId, airdropParams.creator, airdropParams.vaultAddress, airdropParams.tokenAmount, airdropParams.tokensPerClaim, airdropParams.metadata);
     }
 
     function claimAirdrop(uint256 airdropId, Humanness memory humanness) external payable onlyOwner onlyInitialized {

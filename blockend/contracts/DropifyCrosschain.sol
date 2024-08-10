@@ -44,7 +44,7 @@ contract DropifyCrosschain is CCIPReceiver {
         vaultImplementation = params.vaultImplementation;
     }
 
-    event AirdropCrosschainCreated(uint256 localAirdropId, bytes32 crosschainMessageId, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
+    event AirdropCrosschainCreated(uint256 localAirdropId, bytes32 crosschainMessageId, address creator, address vaultAddress, uint256 tokenAmount, uint256 tokensPerClaim, string metadata);
     event AidropClaimed(uint256 airdropId, address claimerAddress, uint256 nullifierHash, uint256 amountClaimed);
 
     modifier onlyOwner{
@@ -92,7 +92,7 @@ contract DropifyCrosschain is CCIPReceiver {
        
         bytes32 crosschainMessageId = _sendMessagePayNative(msg.value, _data);
 
-        emit AirdropCrosschainCreated(localAirdropIds, crosschainMessageId, vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
+        emit AirdropCrosschainCreated(localAirdropIds, crosschainMessageId, msg.sender, vaultAddress, params.tokenAmount, params.tokensPerClaim, params.metadata);
         localAirdropIds++;
     }
 
