@@ -1,6 +1,6 @@
-export const CORE_ADDRESS = "0xaC9b9540832281Bf984306cc6D99FeD3B9395ED8";
+export const CORE_ADDRESS = "0xa8ec309E062b0B986284c19a7A14AE2F1f4D4D0F";
 export const CROSSCHAIN_ADDRESSES = {
-  421614: "0x4a0DC91781A116e83770A17AD09b63fa3E50d7Ce",
+  421614: "0x7933194237b2A301E82bEd5916659c3Fda5352CA",
 };
 
 export const CORE_ABI = [
@@ -572,7 +572,7 @@ export const CORE_ABI = [
             type: "uint256[8]",
           },
         ],
-        internalType: "struct DropifyCore.Humanness",
+        internalType: "struct Humanness",
         name: "humanness",
         type: "tuple",
       },
@@ -620,7 +620,7 @@ export const CORE_ABI = [
             type: "string",
           },
         ],
-        internalType: "struct DropifyCore.CreateAirdropParams",
+        internalType: "struct CreateAirdropParams",
         name: "params",
         type: "tuple",
       },
@@ -665,12 +665,12 @@ export const CORE_ABI = [
   {
     inputs: [
       {
+        internalType: "uint64",
+        name: "_chainId",
+        type: "uint64",
+      },
+      {
         components: [
-          {
-            internalType: "uint64",
-            name: "chainId",
-            type: "uint64",
-          },
           {
             internalType: "uint256",
             name: "localAirdropId",
@@ -678,41 +678,16 @@ export const CORE_ABI = [
           },
           {
             internalType: "address",
-            name: "creator",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "tokenAddress",
+            name: "claimer",
             type: "address",
           },
           {
             internalType: "uint256",
-            name: "tokenAmount",
+            name: "nullifier",
             type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "tokensPerClaim",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "tokensClaimed",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "vaultAddress",
-            type: "address",
-          },
-          {
-            internalType: "string",
-            name: "metadata",
-            type: "string",
           },
         ],
-        internalType: "struct DropifyCore.CrosschainAirdrop",
+        internalType: "struct CrosschainClaim",
         name: "params",
         type: "tuple",
       },
@@ -884,7 +859,7 @@ export const CORE_ABI = [
             type: "uint256[8]",
           },
         ],
-        internalType: "struct DropifyCore.Humanness",
+        internalType: "struct Humanness",
         name: "humanness",
         type: "tuple",
       },
@@ -906,23 +881,98 @@ export const CROSSCHAIN_ABI = [
   {
     inputs: [
       {
-        internalType: "uint64",
-        name: "_chain",
-        type: "uint64",
-      },
-      {
-        internalType: "address",
-        name: "_coreAddress",
-        type: "address",
-      },
-      {
-        internalType: "uint64",
-        name: "_coreSelector",
-        type: "uint64",
+        components: [
+          {
+            internalType: "uint64",
+            name: "chainId",
+            type: "uint64",
+          },
+          {
+            internalType: "uint64",
+            name: "coreChainId",
+            type: "uint64",
+          },
+          {
+            internalType: "address",
+            name: "coreAddress",
+            type: "address",
+          },
+          {
+            internalType: "uint64",
+            name: "coreSelector",
+            type: "uint64",
+          },
+          {
+            internalType: "address",
+            name: "vaultImplementation",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "ccipRouter",
+            type: "address",
+          },
+        ],
+        internalType: "struct DropifyCrosschain.ConstructorParams",
+        name: "params",
+        type: "tuple",
       },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
+  },
+  {
+    inputs: [],
+    name: "Create2EmptyBytecode",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "Create2FailedDeployment",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "balance",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "needed",
+        type: "uint256",
+      },
+    ],
+    name: "Create2InsufficientBalance",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "airdropId",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "nullifierHash",
+        type: "uint256",
+      },
+    ],
+    name: "HumanAlreadyClaimed",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "router",
+        type: "address",
+      },
+    ],
+    name: "InvalidRouter",
+    type: "error",
   },
   {
     inputs: [
@@ -938,6 +988,70 @@ export const CROSSCHAIN_ABI = [
       },
     ],
     name: "NotAuthorizedCrosschain",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenAmount",
+        type: "uint256",
+      },
+    ],
+    name: "NotEnoughAllowance",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "balance",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "fee",
+        type: "uint256",
+      },
+    ],
+    name: "NotEnoughCrosschainFee",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "airdropId",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "tokensClaimed",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "tokensPerClaim",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "tokenAmount",
+        type: "uint256",
+      },
+    ],
+    name: "VaultDepleted",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "vaultAddress",
+        type: "address",
+      },
+    ],
+    name: "VaultInitFailed",
     type: "error",
   },
   {
@@ -959,12 +1073,6 @@ export const CROSSCHAIN_ABI = [
         indexed: false,
         internalType: "uint256",
         name: "nullifierHash",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "claimAttestaionId",
         type: "uint256",
       },
       {
@@ -1022,12 +1130,12 @@ export const CROSSCHAIN_ABI = [
   },
   {
     inputs: [],
-    name: "aidropIds",
+    name: "INITIALIZE_VAULT_METHOD_ID",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "bytes4",
         name: "",
-        type: "uint256",
+        type: "bytes4",
       },
     ],
     stateMutability: "view",
@@ -1043,6 +1151,16 @@ export const CROSSCHAIN_ABI = [
     ],
     name: "airdrops",
     outputs: [
+      {
+        internalType: "uint64",
+        name: "chainId",
+        type: "uint64",
+      },
+      {
+        internalType: "uint256",
+        name: "localAirdropId",
+        type: "uint256",
+      },
       {
         internalType: "address",
         name: "creator",
@@ -1078,13 +1196,60 @@ export const CROSSCHAIN_ABI = [
         name: "metadata",
         type: "string",
       },
-      {
-        internalType: "uint256",
-        name: "createdAttestationId",
-        type: "uint256",
-      },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "bytes32",
+            name: "messageId",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint64",
+            name: "sourceChainSelector",
+            type: "uint64",
+          },
+          {
+            internalType: "bytes",
+            name: "sender",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes",
+            name: "data",
+            type: "bytes",
+          },
+          {
+            components: [
+              {
+                internalType: "address",
+                name: "token",
+                type: "address",
+              },
+              {
+                internalType: "uint256",
+                name: "amount",
+                type: "uint256",
+              },
+            ],
+            internalType: "struct Client.EVMTokenAmount[]",
+            name: "destTokenAmounts",
+            type: "tuple[]",
+          },
+        ],
+        internalType: "struct Client.Any2EVMMessage",
+        name: "message",
+        type: "tuple",
+      },
+    ],
+    name: "ccipReceive",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1108,6 +1273,19 @@ export const CROSSCHAIN_ABI = [
         internalType: "address",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "coreChain",
+    outputs: [
+      {
+        internalType: "uint64",
+        name: "",
+        type: "uint64",
       },
     ],
     stateMutability: "view",
@@ -1164,20 +1342,53 @@ export const CROSSCHAIN_ABI = [
             type: "string",
           },
         ],
-        internalType: "struct DropifyCrosschainMock.CreateAirdropParams",
+        internalType: "struct CreateAirdropParams",
         name: "params",
         type: "tuple",
       },
+    ],
+    name: "createAirdrop",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
       {
         components: [
           {
-            internalType: "bytes32",
-            name: "crosschainMessageId",
-            type: "bytes32",
+            internalType: "uint64",
+            name: "chainId",
+            type: "uint64",
           },
           {
             internalType: "uint256",
-            name: "createdAttestationId",
+            name: "localAirdropId",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "creator",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "tokenAddress",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "tokenAmount",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "tokensPerClaim",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "tokensClaimed",
             type: "uint256",
           },
           {
@@ -1185,15 +1396,52 @@ export const CROSSCHAIN_ABI = [
             name: "vaultAddress",
             type: "address",
           },
+          {
+            internalType: "string",
+            name: "metadata",
+            type: "string",
+          },
         ],
-        internalType: "struct DropifyCrosschainMock.MockParams",
-        name: "mockParams",
+        internalType: "struct CrosschainAirdrop",
+        name: "params",
         type: "tuple",
       },
     ],
-    name: "createAirdrop",
-    outputs: [],
-    stateMutability: "nonpayable",
+    name: "getFee",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getRouter",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "localAirdropIds",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -1236,46 +1484,33 @@ export const CROSSCHAIN_ABI = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_caller",
-        type: "address",
-      },
-      {
-        internalType: "uint64",
-        name: "_chain",
-        type: "uint64",
-      },
-      {
-        components: [
-          {
-            internalType: "uint256",
-            name: "localAirdropId",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "claimer",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "claimAttestationId",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "nullifer",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct DropifyCrosschainMock.CrosschainClaimParams",
-        name: "params",
-        type: "tuple",
+        internalType: "bytes4",
+        name: "interfaceId",
+        type: "bytes4",
       },
     ],
-    name: "receiveClaimAirdrop",
-    outputs: [],
-    stateMutability: "nonpayable",
+    name: "supportsInterface",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "vaultImplementation",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
 ];
