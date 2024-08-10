@@ -25,7 +25,9 @@ export default function LogIn() {
             <button
               className="btn btn-primary mt-6"
               onClick={() => {
+                console.log(chain.id);
                 if (chain.id == 84532) {
+                  console.log("setting chain to arbitrum");
                   setChain({ chain: arbitrumSepolia });
                 } else {
                   setChain({ chain: baseSepolia });

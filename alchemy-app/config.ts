@@ -17,7 +17,12 @@ export const config = createConfig(
   {
     apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY!,
     chain: baseSepolia,
-    // chains: [baseSepolia, arbitrumSepolia],
+    chains: [
+      { chain: baseSepolia },
+      {
+        chain: arbitrumSepolia,
+      },
+    ],
     ssr: true,
   },
   uiConfig
