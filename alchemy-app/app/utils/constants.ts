@@ -1,6 +1,6 @@
-export const CORE_ADDRESS = "0xa8ec309E062b0B986284c19a7A14AE2F1f4D4D0F";
+export const CORE_ADDRESS = "0x2b907FDBa04A77091Ffa1a89a78e8bbC47de90F0";
 export const CROSSCHAIN_ADDRESSES = {
-  421614: "0x7933194237b2A301E82bEd5916659c3Fda5352CA",
+  421614: "0x8Aa5Bc6b3B7C779be6c36Cb6Cc61fcDa1a67c039",
 };
 
 export const ERC20_TOKEN_BASE = "0xa6450dd8a3b30d9e0af97762d8ab1f15ead71383";
@@ -294,6 +294,12 @@ export const CORE_ABI = [
         internalType: "bytes32",
         name: "attestationId",
         type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "creator",
+        type: "address",
       },
       {
         indexed: false,
@@ -880,7 +886,6 @@ export const CORE_ABI = [
     type: "function",
   },
 ];
-
 export const CROSSCHAIN_ABI = [
   {
     inputs: [
@@ -1103,6 +1108,12 @@ export const CROSSCHAIN_ABI = [
         internalType: "bytes32",
         name: "crosschainMessageId",
         type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "creator",
+        type: "address",
       },
       {
         indexed: false,
