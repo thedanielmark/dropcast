@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import {
   IDKitWidget,
@@ -9,8 +11,8 @@ interface Status {
   error: boolean;
   message: string;
 }
+
 import {
-  useAccount,
   useSendUserOperation,
   useSmartAccountClient,
   useUser,
@@ -19,19 +21,25 @@ import { CORE_ABI, CORE_ADDRESS } from "../utils/constants";
 import { decodeAbiParameters, hexToBigInt } from "viem";
 import getWorldcoinVerificationData from "../utils/getWorldcoinVerificationData";
 import { baseSepolia, createAlchemyPublicRpcClient } from "@account-kit/infra";
+import { CheckCircleIcon } from "@heroicons/react/24/outline";
+
 export default function ClaimAirdrop() {
   const user = useUser();
+  const { client } = useSmartAccountClient({ type: "LightAccount" });
   const readClient = createAlchemyPublicRpcClient({
     chain: baseSepolia,
     connectionConfig: {
       apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY as string,
     },
   });
+
   const [airdropId, setAirdrpId] = useState("");
+  const [airdropDetails, setAirdropDetails] = useState<any>();
+  const [airdropTasks, setAirdropTasks] = useState<any>([]);
   const [status, setStatus] = useState<Status[]>([]);
-  const { client } = useSmartAccountClient({ type: "LightAccount" });
   const [worldcoin, setWorldCoin] = useState<any>(null);
   const [worldVerified, setWorldVerified] = useState<boolean>(false);
+
   const { sendUserOperation, isSendingUserOperation } = useSendUserOperation({
     client,
     waitForTxn: true,
@@ -56,6 +64,7 @@ export default function ClaimAirdrop() {
       ]);
     },
   });
+
   useEffect(() => {
     console.log("WORLDCOIN");
     console.log(worldcoin);
@@ -104,6 +113,14 @@ export default function ClaimAirdrop() {
       args: [airdropId],
     });
 
+    // Fetching tasks from Pinata and setting it in state
+    // Get request
+    console.log("Fetching pinata data");
+    // const response = await fetch(data[8]);
+    // const tasks = await response.json();
+    // console.log("Tasks: ", response);
+    // setAirdropDetails(tasks);
+
     console.log("Airdrop data: ", data);
   };
 
@@ -114,18 +131,30 @@ export default function ClaimAirdrop() {
     }
   }, [airdropId]);
 
+  // function to get tasks from airdrop details
+  useEffect(() => {
+    if (airdropDetails) {
+      fetch(airdropDetails[8])
+        .then((response) => response.json())
+        .then((json) => setAirdropTasks(json.tasks));
+    }
+  }, [airdropDetails]);
+
   return (
-    <div>
-      <p className="text-2xl font-semibold pb-12">Claim Airdrop</p>
+    <div className="max-w-3xl flex-1 p-8 bg-zinc-50 text-zinc-900 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2 space-y-3">
+      <div className="text-3xl font-black">Claim Your Airdrop</div>
       <p>Airdrop Id</p>
       <input
-        type="string"
-        className="input"
+        id="airdropId"
+        name="airdropId"
+        type="text"
+        placeholder="69"
+        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm sm:leading-6"
         value={airdropId}
         onChange={(e) => setAirdrpId(e.target.value)}
       />
       <button
-        className="block mx-auto btn btn-primary mt-6"
+        className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
         onClick={async () => {
           const response = await readClient.readContract({
             abi: CORE_ABI,
@@ -134,34 +163,114 @@ export default function ClaimAirdrop() {
             args: [airdropId],
           });
           console.log(response);
+          setAirdropDetails(response);
         }}
       >
-        Fetch Airdrop
+        Get Airdrop Details
       </button>
-      {worldVerified ? (
-        <p className="mt-4">WORLDCOIN VERIFIED 🥰</p>
-      ) : (
-        user != null && (
-          <IDKitWidget
-            app_id={
-              (process.env.NEXT_PUBLIC_WORLDCOIN_APP_ID as `app_${string}`) ||
-              "app_"
-            }
-            action="unique-human-airdrop"
-            onSuccess={onSuccess}
-            onError={(error: any) => {
-              console.log(error);
-            }}
-            signal={user.address}
-            verification_level={VerificationLevel.Orb}
-          >
-            {({ open }: any) => (
-              // This is the button that will open the IDKit modal
-              <button onClick={open}>Verify with World ID</button>
-            )}
-          </IDKitWidget>
-        )
-      )}
+
+      <div>
+        {airdropDetails && (
+          <div>
+            {airdropTasks.length > 0 &&
+              airdropTasks.map((task: any, index: any) => (
+                <div
+                  key={index}
+                  className="border-l-4 border-orange-400 bg-orange-50 p-4"
+                >
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <CheckCircleIcon
+                        aria-hidden="true"
+                        className="h-5 w-5 text-orange-400"
+                      />
+                    </div>
+                    <div className="ml-3">
+                      {task.type === 1 && (
+                        <p className="text-sm text-orange-700">
+                          You have to hold at least{" "}
+                          <span className="font-bold text-orange-800">
+                            {task.threshold} NFTs
+                          </span>{" "}
+                          that belong to the contract address -{" "}
+                          <span className="font-bold text-orange-800">
+                            {task.address}
+                          </span>{" "}
+                          to claim this airdrop .
+                        </p>
+                      )}
+                      {task.type === 2 && (
+                        <p className="text-sm text-orange-700">
+                          You have to hold at least{" "}
+                          <span className="font-bold text-orange-800">
+                            {task.threshold} ERC20 tokens
+                          </span>{" "}
+                          that belong to the contract address -{" "}
+                          <span className="font-bold text-orange-800">
+                            {task.address}
+                          </span>{" "}
+                          to claim this airdrop .
+                        </p>
+                      )}
+                      {task.type === 3 && (
+                        <p className="text-sm text-orange-700">
+                          You have to follow{" "}
+                          <span className="font-bold text-orange-800">
+                            {task.farcasterID}
+                          </span>{" "}
+                          on Farcaster to claim this airdrop.
+                        </p>
+                      )}
+                      {task.type === 4 && (
+                        <p className="text-sm text-orange-700">
+                          You have to have at least{" "}
+                          <span className="font-bold text-orange-800">
+                            {task.threshold} followers
+                          </span>{" "}
+                          on Farcaster to claim this airdrop.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            {/* Tasks end */}
+          </div>
+        )}
+      </div>
+
+      <div>
+        {worldVerified ? (
+          <p className="mt-4">WORLDCOIN VERIFIED 🥰</p>
+        ) : (
+          user != null && (
+            <IDKitWidget
+              app_id={
+                (process.env.NEXT_PUBLIC_WORLDCOIN_APP_ID as `app_${string}`) ||
+                "app_"
+              }
+              action="unique-human-airdrop"
+              onSuccess={onSuccess}
+              onError={(error: any) => {
+                console.log(error);
+              }}
+              signal={user.address}
+              verification_level={VerificationLevel.Orb}
+            >
+              {({ open }: any) => (
+                // This is the button that will open the IDKit modal
+                <button
+                  type="button"
+                  onClick={open}
+                  className="rounded-md bg-purple-100 px-3 py-2 text-sm font-semibold text-purple-600 border border-purple-200 shadow-sm hover:bg-purple-200"
+                >
+                  Verify with World ID
+                </button>
+              )}
+            </IDKitWidget>
+          )
+        )}
+      </div>
       <button
         className="block mx-auto btn btn-primary mt-6"
         onClick={async () => {

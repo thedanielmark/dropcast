@@ -432,89 +432,6 @@ export default function CreateAirdrop() {
         </div>
       ))}
 
-      {/* <button
-        className="btn btn-secondary mt-6"
-        onClick={() => {
-          const tasks = metadata.tasks;
-          tasks.push({
-            type: 0,
-            address: "",
-            threshold: 0,
-          });
-          setMetadata({ ...metadata, tasks });
-        }}
-      )}
-
-      {/* {metadata.tasks.map((task, index) => (
-        <div className="flex my-2 space-x-4" key={index}>
-          <div>
-            <p>Type</p>
-            <input
-              type="number"
-              className="input"
-              value={task.type}
-              onChange={(e) => {
-                const tasks = metadata.tasks;
-                tasks[index].type = parseInt(e.target.value);
-                setMetadata({ ...metadata, tasks });
-              }}
-            />
-          </div>
-          <div>
-            <p>Address</p>
-            <input
-              type="text"
-              className="input"
-              value={task.address}
-              onChange={(e) => {
-                const tasks = metadata.tasks;
-                tasks[index].address = e.target.value;
-                setMetadata({ ...metadata, tasks });
-              }}
-            ></input>
-          </div>
-          <div>
-            <p>Threshold</p>
-            <input
-              type="text"
-              className="input"
-              value={task.threshold}
-              onChange={(e) => {
-                const tasks = metadata.tasks;
-                tasks[index].threshold = parseInt(e.target.value);
-                setMetadata({ ...metadata, tasks });
-              }}
-            ></input>
-          </div>
-        </div>
-      ))} */}
-      {/* <button
-        className="btn btn-secondary mt-6"
-        onClick={() => {
-          const tasks = metadata.tasks;
-          tasks.push({
-            type: 0,
-            address: "",
-            threshold: 0,
-          });
-          setMetadata({ ...metadata, tasks });
-        }}
-      >
-        Add Task
-      </button>
-      <button
-        className="btn btn-link mt-6 ml-4"
-        onClick={() => {
-          const tasks = metadata.tasks;
-          if (tasks.length > 0) {
-            tasks.pop();
-            setMetadata({ ...metadata, tasks });
-          }
-        }}
-      >
-        Remove Task
-      </button> */}
-
       <div className="w-full pt-4" />
       <div className="w-full pb-5 border-t border-gray-200" />
 
@@ -578,9 +495,10 @@ export default function CreateAirdrop() {
       </div>
       {/* Main action buttons end */}
       {status.map((s, index) => (
-        <p key={index} className={s.error ? "text-red-700" : "text-white"}>{`[${
-          index + 1
-        }] ${s.message}`}</p>
+        <p
+          key={index}
+          className={s.error ? "text-red-700" : "text-gray-900"}
+        >{`[${index + 1}] ${s.message}`}</p>
       ))}
     </div>
   );
