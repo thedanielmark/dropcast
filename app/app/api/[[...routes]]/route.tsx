@@ -4,6 +4,10 @@ import { devtools } from "frog/dev";
 import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
 
+const generateRandomString = () => {
+  return Math.random().toString(36).substring(7);
+};
+
 const app = new Frog({
   title: "DropCast",
   assetsPath: "/",
@@ -35,11 +39,13 @@ app.frame("/airdrop/:id", (c) => {
   return c.res({
     image: <div></div>,
     intents: [
-      <Button.Link
-        href={`https://dropcast.thedanielmark.app/claim/${airdropId}`}
-      >
-        Claim Airdrop
-      </Button.Link>,
+      <div key={generateRandomString()}>
+        <Button.Link
+          href={`https://dropcast.thedanielmark.app/claim/${airdropId}`}
+        >
+          Claim Airdrop
+        </Button.Link>
+      </div>,
     ],
   });
 });
