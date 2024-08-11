@@ -80,13 +80,13 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <>
+        <div className="p-8 bg-zinc-50 text-zinc-900 shadow-sm ring-1 ring-gray-900/5 rounded-xl">
           <div className="flex items-center justify-center gap-x-2">
             <img src="/logo.png" alt="Logo" className="h-10 w-10" />
             <div className="text-3xl font-bold">DropCast</div>
           </div>
           <LogIn />
-        </>
+        </div>
       )}
     </main>
   );
