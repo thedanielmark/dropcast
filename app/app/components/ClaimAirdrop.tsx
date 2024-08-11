@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -299,8 +300,19 @@ export default function ClaimAirdrop() {
 
   return (
     <div className="max-w-3xl flex-1 p-8 bg-zinc-50 text-zinc-900 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2 space-y-3">
-      <div className="text-3xl font-black">Claim Your Airdrop</div>
-      <p>Airdrop Id</p>
+      <div className="flex items-center justify-start gap-x-2 pb-5">
+        <img src="/logo.png" alt="Logo" className="h-10 w-10" />
+        <div className="text-3xl font-black">
+          Claim Your Airdrop on DropCast
+        </div>
+      </div>
+
+      <label
+        htmlFor="airdropId"
+        className="block text-sm font-medium leading-6 text-gray-900"
+      >
+        Airdrop ID
+      </label>
       <input
         id="airdropId"
         name="airdropId"

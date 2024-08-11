@@ -1,18 +1,18 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import CreateAirdrop from "../components/CreateAirdrop";
 import { useUser } from "@account-kit/react";
-import ClaimAirdrop from "./components/ClaimAirdrop";
-import LogIn from "./components/LogIn";
+import LogIn from "../components/LogIn";
 
-export default function Home() {
+function CreatePage() {
   const user = useUser();
 
   return (
     <main className="flex min-h-screen flex-col items-center p-24 gap-4 justify-center">
       {user ? (
         <div className="flex justify-center w-full">
-          <ClaimAirdrop />
+          <CreateAirdrop />
         </div>
       ) : (
         <>
@@ -26,3 +26,5 @@ export default function Home() {
     </main>
   );
 }
+
+export default CreatePage;

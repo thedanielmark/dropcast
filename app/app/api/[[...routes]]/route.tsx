@@ -5,7 +5,7 @@ import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
 
 const app = new Frog({
-  title: "Dropfify",
+  title: "DropCast",
   assetsPath: "/",
   basePath: "/api",
   imageOptions: {
@@ -16,16 +16,16 @@ app.composerAction(
   "/composer",
   (c) => {
     return c.res({
-      title: "Dropify",
-      url: "https://dropify.thedanielmark.app/",
+      title: "DropCast",
+      url: "https://dropcast.thedanielmark.app/create",
     });
   },
   {
-    name: "Dropify Composer action",
+    name: "DropCast Composer action",
     description:
       "Cross-chain and sybil-proof airdrop protocol in Farcaster using Composer Actions.",
     icon: "image",
-    imageUrl: "https://dropify.thedanielmark.app/logo.png",
+    imageUrl: "https://dropcast.thedanielmark.app/logo.png",
   }
 );
 

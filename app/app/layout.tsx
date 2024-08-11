@@ -1,16 +1,14 @@
 import { config } from "@/config";
 import { cookieToInitialState } from "@account-kit/core";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
-  title: "Embedded Accounts UI Components Quickstart NextJs Template",
-  description: "Embedded Accounts UI Components Quickstart NextJs Template",
+  title: "DropCast",
+  description:
+    "Cross-chain and sybil-proof airdrop protocol in Farcaster using Composer Actions.",
 };
 
 export default function RootLayout({
@@ -26,6 +24,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
+      <link rel="icon" type="image/x-icon" href="/favicon.ico" />
       <body className="bg-zinc-900 text-white">
         <Providers initialState={initialState}>{children}</Providers>
       </body>
