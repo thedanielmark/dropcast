@@ -66,7 +66,7 @@ app.frame("/drop/:id", async (c) => {
               alignItems: "center",
             }}
           >
-            <img width={80} height={80} src="/logo.png" />
+            <img width={80} height={80} src="/base.png" />
           </div>
         </div>
 
