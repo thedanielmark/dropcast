@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import CreateAirdrop from "../components/CreateAirdrop";
 import { useUser } from "@account-kit/react";
 import LogIn from "../components/LogIn";
+import ClaimAirdrop from "../components/ClaimAirdrop";
 
 function CreatePage() {
   const user = useUser();
@@ -12,7 +12,7 @@ function CreatePage() {
     <main className="flex min-h-screen flex-col items-center p-5 gap-4 justify-center">
       {user ? (
         <div className="flex justify-center w-full">
-          <CreateAirdrop />
+          <ClaimAirdrop />
         </div>
       ) : (
         <>
