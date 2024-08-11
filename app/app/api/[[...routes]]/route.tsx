@@ -1,5 +1,5 @@
 /** @jsxImportSource frog/jsx */
-import { Frog } from "frog";
+import { Button, Frog } from "frog";
 import { devtools } from "frog/dev";
 import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
@@ -28,6 +28,21 @@ app.composerAction(
     imageUrl: "https://dropcast.thedanielmark.app/logo.png",
   }
 );
+
+app.frame("/airdrop/:id", (c) => {
+  const params = c.req.param();
+  const airdropId = params["id"];
+  return c.res({
+    image: <div></div>,
+    intents: [
+      <Button.Link
+        href={`https://dropcast.thedanielmark.app/claim/${airdropId}`}
+      >
+        Claim Airdrop
+      </Button.Link>,
+    ],
+  });
+});
 
 devtools(app, { serveStatic });
 
