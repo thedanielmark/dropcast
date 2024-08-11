@@ -18,7 +18,7 @@ export default function Home() {
       <LogIn /> */}
       {user ? (
         <div className="flex justify-center w-full">
-          {/* <CreateAirdrop /> */}
+          <CreateAirdrop />
           <ClaimAirdrop />
         </div>
       ) : (
