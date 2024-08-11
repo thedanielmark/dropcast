@@ -5,6 +5,7 @@ import { devtools } from "frog/dev";
 import { pinata } from "frog/hubs";
 import { handle } from "frog/next";
 import { serveStatic } from "frog/serve-static";
+import { formatEther } from "viem";
 
 const app = new Frog({
   title: "DropCast",
@@ -90,7 +91,7 @@ app.frame("/drop/:id", async (c) => {
           </p>
           <h3>Claim Now</h3>
           <p style={{ margin: "0 0", fontSize: 24 }}>
-            {airdrop.claimmableAmount} ETH
+            {formatEther(BigInt(airdrop.claimmableAmount))} ETH
           </p>
         </div>
       </div>
