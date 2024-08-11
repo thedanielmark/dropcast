@@ -456,7 +456,7 @@ export default function ClaimAirdrop() {
           className={`rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600 ${
             activateClaimButton ? "" : "cursor-not-allowed opacity-50"
           }`}
-          disabled={false}
+          disabled={!activateClaimButton}
           onClick={async () => {
             const publicClient = createPublicClient({
               chain: baseSepoliaViem,
