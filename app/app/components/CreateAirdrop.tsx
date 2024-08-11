@@ -20,6 +20,9 @@ import {
 } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
+import { createPublicClient, decodeAbiParameters, http } from "viem";
+import { baseSepolia as baseSepoliaViem } from "viem/chains";
+import Link from "next/link";
 
 const tasks = [
   { id: 1, name: "Hold NFTs" },
@@ -62,6 +65,12 @@ export default function CreateAirdrop() {
   const [taskAddress, setTaskAddress] = useState<string>("");
   const [taskThreshold, setTaskThreshold] = useState<string>("");
   const [taskFarcasterID, setTaskFarcasterID] = useState<string>("");
+  const [warpcastUrl, setWarpcastUrl] = useState<string>("");
+
+  const publicClient = createPublicClient({
+    chain: baseSepoliaViem,
+    transport: http(),
+  });
 
   // Function to create task and add it to tasks array
   const createTask = () => {
@@ -99,7 +108,34 @@ export default function CreateAirdrop() {
   const { sendUserOperation, isSendingUserOperation } = useSendUserOperation({
     client,
     waitForTxn: true,
-    onSuccess: ({ hash, request }) => {
+    onSuccess: async ({ hash, request }) => {
+      if (metadataUrl !== "") {
+        const transaction = await publicClient.waitForTransactionReceipt({
+          hash: hash,
+        });
+
+        console.log("Transaction", transaction);
+
+        const values = decodeAbiParameters(
+          [
+            { name: "airdropId", type: "uint256" },
+            { name: "localAirdropId", type: "uint256" },
+            { name: "chain", type: "uint64" },
+            { name: "attestationId", type: "bytes32" },
+            { name: "vaultAddress", type: "address" },
+            { name: "tokenAmount", type: "uint256" },
+            { name: "tokensPerClaim", type: "uint256" },
+            { name: "metadata", type: "string" },
+          ],
+          transaction.logs[3].data
+        );
+
+        console.log("Values", values[0].toString());
+
+        const url = `https://warpcast.com/~/compose?text=https://dropcast.thedanielmark.app/api/claim/${values[0].toString()}`;
+
+        setWarpcastUrl(url);
+      }
       setStatus([
         ...status,
         {
@@ -120,10 +156,10 @@ export default function CreateAirdrop() {
   });
 
   return (
-    <div className="max-w-3xl flex-1 p-8 bg-zinc-50 text-zinc-900 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2 space-y-3">
+    <div className="p-8 bg-zinc-50 text-zinc-900 shadow-sm ring-1 ring-gray-900/5 rounded-xl md:col-span-2 space-y-3">
       <div className="flex items-center justify-start gap-x-2 pb-5">
-        <img src="/logo.png" alt="Logo" className="h-10 w-10" />
-        <div className="text-3xl font-black">Create An Airdrop on DropCast</div>
+        <img src="/logo.png" alt="Logo" className="h-8 w-8" />
+        <div className="text-2xl font-black">Create An Airdrop on DropCast</div>
       </div>
 
       {/* Title start */}
@@ -444,19 +480,6 @@ export default function CreateAirdrop() {
         <button
           className="rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
           onClick={async () => {
-            const ipfsHash = await uploadToPinata(metadata);
-            setMetadataUrl(
-              "https://amethyst-impossible-ptarmigan-368.mypinata.cloud/ipfs/" +
-                ipfsHash +
-                "?pinataGatewayToken=" +
-                process.env.NEXT_PUBLIC_PINATA_GATEWAY_KEY
-            );
-            setStatus([
-              {
-                error: false,
-                message: "Metadata uploaded successfully to IPFS: " + ipfsHash,
-              },
-            ]);
             const data = getApproveTokensData(
               CORE_ADDRESS,
               tokenAmount.toString()
@@ -476,7 +499,21 @@ export default function CreateAirdrop() {
         </button>
         <button
           className="rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
-          onClick={() => {
+          onClick={async () => {
+            const ipfsHash = await uploadToPinata(metadata);
+            setMetadataUrl(
+              "https://amethyst-impossible-ptarmigan-368.mypinata.cloud/ipfs/" +
+                ipfsHash +
+                "?pinataGatewayToken=" +
+                process.env.NEXT_PUBLIC_PINATA_GATEWAY_KEY
+            );
+            setStatus([
+              {
+                error: false,
+                message: "Metadata uploaded successfully to IPFS: " + ipfsHash,
+              },
+            ]);
+
             const data = getCreateAirdropData(
               contractAddress as `0x${string}`,
               tokenAmount,
@@ -496,13 +533,26 @@ export default function CreateAirdrop() {
         >
           Create Airdrop
         </button>
+
+        {warpcastUrl && (
+          <Link
+            className="rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+            href={warpcastUrl}
+            target="_blank"
+          >
+            Cast on WarpCast
+          </Link>
+        )}
       </div>
       {/* Main action buttons end */}
       {status.map((s, index) => (
-        <p
-          key={index}
-          className={s.error ? "text-red-700" : "text-gray-900"}
-        >{`[${index + 1}] ${s.message}`}</p>
+        <div key={index} className="p-5 break-all">
+          <div
+            className={
+              s.error ? "break-all text-red-700" : "break-all text-gray-900"
+            }
+          >{`[${index + 1}] ${s.message}`}</div>
+        </div>
       ))}
     </div>
   );
