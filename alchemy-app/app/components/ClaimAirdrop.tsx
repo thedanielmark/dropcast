@@ -18,10 +18,22 @@ import {
   useUser,
 } from "@account-kit/react";
 import { CORE_ABI, CORE_ADDRESS } from "../utils/constants";
-import { decodeAbiParameters, hexToBigInt } from "viem";
+import {
+  createPublicClient,
+  decodeAbiParameters,
+  hexToBigInt,
+  http,
+} from "viem";
 import getWorldcoinVerificationData from "../utils/getWorldcoinVerificationData";
 import { baseSepolia, createAlchemyPublicRpcClient } from "@account-kit/infra";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
+import {
+  getFarcasterFollowers,
+  getFarcasterFollowings,
+} from "../utils/airstackQueries";
+import { init, useQuery } from "@airstack/airstack-react";
+
+init(process.env.NEXT_PUBLIC_AIRSTACK_API_KEY as string);
 
 export default function ClaimAirdrop() {
   const user = useUser();
@@ -33,12 +45,68 @@ export default function ClaimAirdrop() {
     },
   });
 
+  const publicClient = createPublicClient({
+    chain: baseSepolia,
+    transport: http(),
+  });
+
   const [airdropId, setAirdrpId] = useState("");
   const [airdropDetails, setAirdropDetails] = useState<any>();
   const [airdropTasks, setAirdropTasks] = useState<any>([]);
   const [status, setStatus] = useState<Status[]>([]);
   const [worldcoin, setWorldCoin] = useState<any>(null);
   const [worldVerified, setWorldVerified] = useState<boolean>(false);
+  const [activateClaimButton, setActivateClaimButton] =
+    useState<boolean>(false);
+
+  // Get farcaster followings
+  const {
+    data: farcasterFollowingsData,
+    loading: farcasterFollowingsLoading,
+    error: farcasterFollowingsError,
+  } = useQuery(getFarcasterFollowings(user?.address || ""));
+
+  // Get farcaster follower count
+  const {
+    data: farcasterFollowersData,
+    loading: farcasterFollowersLoading,
+    error: farcasterFollowersError,
+  } = useQuery(getFarcasterFollowers(user?.address || ""));
+
+  useEffect(() => {
+    if (!farcasterFollowingsLoading && farcasterFollowingsData) {
+      console.log(farcasterFollowingsData);
+    }
+  }, [farcasterFollowingsData, farcasterFollowingsLoading]);
+
+  useEffect(() => {
+    if (!farcasterFollowersLoading && farcasterFollowersData) {
+      console.log(farcasterFollowersData);
+    }
+  }, [farcasterFollowersData, farcasterFollowersLoading]);
+
+  function isProfileNamePresent(data: any, profileName: string) {
+    for (let following of data.SocialFollowings.Following) {
+      // Check in followingAddress socials
+      for (let social of following.followingAddress.socials) {
+        if (social.profileName === profileName) {
+          return true;
+        }
+      }
+
+      // Check in followerAddress socials
+      for (let social of following.followerAddress.socials) {
+        if (social.profileName === profileName) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function countFollowers(data: any) {
+    return data.SocialFollowers.Follower.length;
+  }
 
   const { sendUserOperation, isSendingUserOperation } = useSendUserOperation({
     client,
@@ -74,6 +142,7 @@ export default function ClaimAirdrop() {
         worldcoin
       );
       (async function () {
+        console.log(user?.address);
         const response = await readClient.readContract({
           abi: CORE_ABI,
           functionName: "verifyWorldProof",
@@ -139,6 +208,93 @@ export default function ClaimAirdrop() {
         .then((json) => setAirdropTasks(json.tasks));
     }
   }, [airdropDetails]);
+
+  // function to complete the challenge
+  const completeChallenge = () => {
+    airdropTasks.forEach(async (task: any) => {
+      console.log("Task: ", task);
+      // Check if user holds required NFTs
+      if (task.type === 1) {
+        const options = {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+            "x-api-key": process.env.OPENSEA_API_KEY || "",
+          },
+        };
+
+        fetch(
+          `https://api.opensea.io/api/v2/chain/ethereum/account/${user?.address}/nfts`,
+          options
+        )
+          .then((response) => response.json())
+          .then((response) => {
+            if (response.nfts.length < task.threshold) {
+              console.log("Task verification failed");
+              // TODO - Show error message
+              return;
+            } else {
+              console.log("Task verification success");
+              setActivateClaimButton(true);
+
+              // TODO - GABRIEL: Transfer assets to user
+            }
+          })
+          .catch((err) => console.error(err));
+      }
+      // Check if the user holds required ERC20 tokens
+      if (task.type === 2) {
+        const balance = await publicClient.getBalance({
+          address: user?.address || "0xblahblahblah",
+        });
+
+        console.log("Balance: ", balance);
+
+        if (balance < task.threshold) {
+          console.log("Task verification failed");
+          // TODO - Show error message
+          return;
+        } else {
+          console.log("Task verification success");
+          setActivateClaimButton(true);
+
+          // TODO - GABRIEL: Transfer assets to user
+        }
+      }
+      // Check if the user follows the required Farcaster ID using airstack
+      if (task.type === 3) {
+        const response = isProfileNamePresent(
+          farcasterFollowingsData,
+          task.farcasterID
+        );
+        if (!response) {
+          console.log("Task verification failed");
+          // TODO - Show error message
+          return;
+        } else {
+          console.log("Task verification success");
+          setActivateClaimButton(true);
+
+          // TODO - GABRIEL: Transfer assets to user
+        }
+      }
+      // Check if the user has the required number of followers on Farcaster
+      if (task.type === 4) {
+        const response = countFollowers(farcasterFollowersData);
+        console.log("Followers: ", response);
+        if (response < task.threshold) {
+          console.log("Task verification failed");
+          // TODO - Show error message
+          return;
+        } else {
+          console.log("Task verification success");
+          setActivateClaimButton(true);
+
+          // TODO - GABRIEL: Transfer assets to user
+        }
+      }
+    });
+  };
 
   return (
     <div className="max-w-3xl flex-1 p-8 bg-zinc-50 text-zinc-900 shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2 space-y-3">
@@ -271,117 +427,29 @@ export default function ClaimAirdrop() {
           )
         )}
       </div>
-      <button
-        className="block mx-auto btn btn-primary mt-6"
-        onClick={async () => {
-          // TODO: This will send a transaction using our EOA wallet to release the tokens to the claimer once he satisfied all the criteria
-        }}
-      >
-        Claim Airdrop
-      </button>
-      {/*  <p>Description</p>
-      <textarea
-        className="input"
-        value={metadata.description}
-        onChange={(e) =>
-          setMetadata({ ...metadata, description: e.target.value })
-        }
-      />
-      <div className="flex justify-around">
-        <div>
-          <p>Contract Address</p>
-          <input
-            type="text"
-            className="input"
-            value={contractAddress}
-            onChange={(e) => setContractAddress(e.target.value)}
-          />
-        </div>
-        <div>
-          <p>Token Amount</p>
-          <input
-            type="number"
-            className="input"
-            value={tokenAmount}
-            onChange={(e) => setTokenAmount(parseInt(e.target.value))}
-          />
-        </div>
+
+      <div>
+        <button
+          className="rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600"
+          onClick={completeChallenge}
+        >
+          Complete Challenge
+        </button>
       </div>
-      {metadata.tasks.map((task, index) => (
-        <div className="flex my-2 space-x-4">
-          <div>
-            <p>Type</p>
-            <input
-              type="number"
-              className="input"
-              value={task.type}
-              onChange={(e) => {
-                const tasks = metadata.tasks;
-                tasks[index].type = parseInt(e.target.value);
-                setMetadata({ ...metadata, tasks });
-              }}
-            />
-          </div>
-          <div>
-            <p>Address</p>
-            <input
-              type="text"
-              className="input"
-              value={task.address}
-              onChange={(e) => {
-                const tasks = metadata.tasks;
-                tasks[index].address = e.target.value;
-                setMetadata({ ...metadata, tasks });
-              }}
-            ></input>
-          </div>
-          <div>
-            <p>Threshold</p>
-            <input
-              type="text"
-              className="input"
-              value={task.threshold}
-              onChange={(e) => {
-                const tasks = metadata.tasks;
-                tasks[index].threshold = parseInt(e.target.value);
-                setMetadata({ ...metadata, tasks });
-              }}
-            ></input>
-          </div>
-        </div>
-      ))}
-      <button
-        className="btn btn-secondary mt-6"
-        onClick={() => {
-          const tasks = metadata.tasks;
-          tasks.push({
-            type: 0,
-            address: "",
-            threshold: 0,
-          });
-          setMetadata({ ...metadata, tasks });
-        }}
-      >
-        Add Task
-      </button>
-      <button
-        className="btn btn-link mt-6 ml-4"
-        onClick={() => {
-          const tasks = metadata.tasks;
-          if (tasks.length > 0) {
-            tasks.pop();
-            setMetadata({ ...metadata, tasks });
-          }
-        }}
-      >
-        Remove Task
-      </button>
-      <button className="block mx-auto btn btn-primary mt-6" onClick={() => {}}>
-        Approve Tokens
-      </button>
-      <button className="block mx-auto btn btn-primary mt-6" onClick={() => {}}>
-        Create Airdrop
-      </button> */}
+
+      <div>
+        <button
+          className={`rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600 ${
+            activateClaimButton ? "" : "cursor-not-allowed opacity-50"
+          }`}
+          disabled={!activateClaimButton}
+          onClick={async () => {
+            // TODO: This will send a transaction using our EOA wallet to release the tokens to the claimer once he satisfied all the criteria
+          }}
+        >
+          Claim Airdrop
+        </button>
+      </div>
     </div>
   );
 }
