@@ -21,6 +21,7 @@ import {
 import { CORE_ABI, CORE_ADDRESS } from "../utils/constants";
 import {
   createPublicClient,
+  createWalletClient,
   decodeAbiParameters,
   hexToBigInt,
   http,
@@ -34,6 +35,8 @@ import {
   getFarcasterFollowings,
 } from "../utils/airstackQueries";
 import { init, useQuery } from "@airstack/airstack-react";
+import { privateKeyToAccount } from "viem/accounts";
+import Link from "next/link";
 
 init(process.env.NEXT_PUBLIC_AIRSTACK_API_KEY as string);
 
@@ -46,6 +49,7 @@ export default function ClaimAirdrop() {
       apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY as string,
     },
   });
+  const [txHash, setTxHash] = useState("");
 
   const publicClient = createPublicClient({
     chain: baseSepoliaViem,
@@ -233,13 +237,10 @@ export default function ClaimAirdrop() {
           .then((response) => {
             if (response.nfts.length < task.threshold) {
               console.log("Task verification failed");
-              // TODO - Show error message
               return;
             } else {
               console.log("Task verification success");
               setActivateClaimButton(true);
-
-              // TODO - GABRIEL: Transfer assets to user
             }
           })
           .catch((err) => console.error(err));
@@ -457,12 +458,52 @@ export default function ClaimAirdrop() {
           }`}
           disabled={!activateClaimButton}
           onClick={async () => {
-            // TODO: This will send a transaction using our EOA wallet to release the tokens to the claimer once he satisfied all the criteria
+            const publicClient = createPublicClient({
+              chain: baseSepoliaViem,
+              transport: http(),
+            });
+            const account = privateKeyToAccount(
+              process.env.NEXT_PUBLIC_PRIVATE_KEY as `0x{string}`
+            );
+
+            const client = createWalletClient({
+              account,
+              chain: baseSepoliaViem,
+              transport: http(),
+            });
+
+            const { request } = await publicClient.simulateContract({
+              address: CORE_ADDRESS,
+              abi: CORE_ABI,
+              functionName: "claimAirdrop",
+              args: [
+                airdropId,
+                [
+                  user?.address,
+                  hexToBigInt(worldcoin.merkle_root),
+                  hexToBigInt(worldcoin.nullifier_hash),
+                  worldcoin.proofs,
+                ],
+              ],
+              account,
+            });
+
+            const tx = await client.writeContract(request);
+            setTxHash(tx);
           }}
         >
           Claim Airdrop
         </button>
       </div>
+      {txHash != "" && (
+        <Link
+          target="_blank"
+          href={"https://base-sepolia.blockscout.com/tx/" + txHash}
+          className="mx-auto w-full"
+        >
+          Airdrop claimed Successfully ✅
+        </Link>
+      )}
     </div>
   );
 }
