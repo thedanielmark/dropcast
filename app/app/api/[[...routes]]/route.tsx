@@ -1,4 +1,6 @@
+/** eslint-disable react/jsx-key */
 /** @jsxImportSource frog/jsx */
+
 import getAirdrop from "@/app/utils/getAirdrop";
 import { Button, Frog } from "frog";
 import { devtools } from "frog/dev";
