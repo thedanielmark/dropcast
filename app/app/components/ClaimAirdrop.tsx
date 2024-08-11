@@ -26,6 +26,7 @@ import {
 } from "viem";
 import getWorldcoinVerificationData from "../utils/getWorldcoinVerificationData";
 import { baseSepolia, createAlchemyPublicRpcClient } from "@account-kit/infra";
+import { baseSepolia as baseSepoliaViem } from "viem/chains";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import {
   getFarcasterFollowers,
@@ -46,7 +47,7 @@ export default function ClaimAirdrop() {
   });
 
   const publicClient = createPublicClient({
-    chain: baseSepolia,
+    chain: baseSepoliaViem,
     transport: http(),
   });
 

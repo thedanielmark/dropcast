@@ -22,7 +22,8 @@ app.composerAction(
   },
   {
     name: "Dropify Composer action",
-    description: "Create airdrops like a pro",
+    description:
+      "Cross-chain and sybil-proof airdrop protocol in Farcaster using Composer Actions.",
     icon: "image",
     imageUrl: "https://dropify.thedanielmark.app/logo.png",
   }
