@@ -4,6 +4,7 @@
 /* eslint-disable react/jsx-key */
 import { useEffect, useState } from "react";
 import {
+  useChain,
   useSendUserOperation,
   useSmartAccountClient,
 } from "@account-kit/react";
@@ -23,6 +24,7 @@ import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { createPublicClient, decodeAbiParameters, http } from "viem";
 import { baseSepolia as baseSepoliaViem } from "viem/chains";
 import Link from "next/link";
+import { baseSepolia } from "@account-kit/infra";
 
 const tasks = [
   { id: 1, name: "Hold NFTs" },
@@ -50,6 +52,7 @@ interface Status {
 }
 
 export default function CreateAirdrop() {
+  const { chain, setChain } = useChain();
   const [contractAddress, setContractAddress] = useState("");
   const [tokenAmount, setTokenAmount] = useState<string>("");
   const [tokensPerClaim, setTokensPerClaim] = useState<string>("");
@@ -485,6 +488,11 @@ export default function CreateAirdrop() {
               tokenAmount.toString()
             );
             console.log("DATA ", data);
+            if (chain.id != 84532) {
+              setChain({
+                chain: baseSepolia,
+              });
+            }
             sendUserOperation({
               uo: {
                 target: contractAddress as `0x${string}`,
@@ -521,6 +529,12 @@ export default function CreateAirdrop() {
               metadataUrl
             );
             console.log("DATA ", data);
+            if (chain.id != 84532) {
+              setChain({
+                chain: baseSepolia,
+              });
+            }
+
             sendUserOperation({
               uo: {
                 target: CORE_ADDRESS as `0x${string}`,
