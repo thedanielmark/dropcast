@@ -12,15 +12,20 @@ This is a monorepo containing the front-end and contracts for Dropify.
 1. Complete and Depoly Mocks - DONE
 2. Add test scripts and buttons in FE - DONE
 3. Add worldcoin verification in frontend - DONE
-4. Test Chainlink CCIP - PENDING
-5. Test EAS attestations and implement Vaults - PENDING
-6. Test Hyperlane - PENDING
-7. Test Full flow for all chains - PENDING
+4. Test Chainlink CCIP - DONE
+5. Test EAS attestations and implement Vaults - DONE
+6. Test Full flow for all chains - DONE
 
 ## Daniel Tasks
 
 1. Frontend
 2. Goldsky
+
+# Worldcoin
+
+1. IDKitWidget - https://github.com/thedanielmark/dropcast/blob/app/app/app/components/ClaimAirdrop.tsx
+2. On chain Verification - https://github.com/thedanielmark/dropcast/blob/app/blockend/contracts/DropifyCore.sol
+3. Deployed contract -
 
 ## Contributors
 
