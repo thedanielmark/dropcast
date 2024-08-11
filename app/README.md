@@ -1,97 +1,39 @@
-# Boilerplate and Starter for Next JS 14+, Tailwind CSS 3 and TypeScript
+Please this [quick start guide](https://alchemotion.notion.site/Alchemy-Account-Kit-UI-Components-Alpha-Quickstart-0805fd3fb8ba4c15bfd88846d4ad53ea?pvs=74) to test out Alchemy Account Kit Alpha UI Components. 
 
-🚀 Boilerplate and Starter for Next.js, Tailwind CSS and TypeScript ⚡️ Made with developer experience first: Next.js (app routing), TypeScript, ESLint, Prettier, Husky, Lint-Staged, Jest, React Testing Library, PostCSS, Tailwind CSS, Storybook, Plop, GH actions.
+![image](https://github.com/user-attachments/assets/b7a820e7-1927-4bee-8eaa-52ca4af0f87a)
 
-![Cover](https://svgshare.com/i/idk.svg)
+This is a [Next.js](https://nextjs.org/) template bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## :rocket: Features
+## Getting Started
 
-Developer experience first:
-
-- [Next.js](https://nextjs.org) for Static Site Generator
-- Type checking [TypeScript](https://www.typescriptlang.org)
-- Integrate with [Tailwind CSS](https://tailwindcss.com)
-- [Storybook](https://storybook.js.org) for components documentation
-- Strict Mode for TypeScript and React 18
-- Linter with [ESLint](https://eslint.org)
-- Code Formatter with [Prettier](https://prettier.io)
-- [Husky](https://typicode.github.io/husky/#/) for Git Hooks
-- [Lint-staged](https://github.com/okonet/lint-staged) for running linters on Git staged files
-- Testing with [Jest](https://jestjs.io/) and [react-testing-library](https://testing-library.com/)
-- Absolute Imports using `@` prefix
-- Nextjs custom layouts
-- [T3 env](https://env.t3.gg/) Manage your environment variables with ease
-- Message convention for git
-- Maximize lighthouse score
-- GH actions
-- Components generation with [Plop](https://plopjs.com/) and [atomic design](https://bradfrost.com/blog/post/atomic-web-design/) convention
-
-## 📅 Plans
-
-- [Bundler Analyzer](https://www.npmjs.com/package/@next/bundle-analyzer)
-- [next-pwa](https://github.com/shadowwalker/next-pwa)
-
-## 🧪 Testing
-
-All tests are collocated with the source code inside the same directory. So, it makes it easier to find them. Coverage threshold is set to `70%`. In the `.jest` folder there is a custom provider for the all tests.
-
-## :information_source: How To Use
-
-To use this template you can simply click in **[Use this template](https://github.com/hadrysm/thedanielmark-app-v1/generate)** or create your Next.js app based on this template by running:
+First, download the template:
 
 ```bash
-pnpm create next-app -e https://github.com/hadrysm/thedanielmark-app-v1
+yarn create next-app my-smart-app -e https://github.com/avarobinson/embedded-accounts-ui-components-alpha-quickstart-nextjs
 ```
 
-## 🚀 Deploy to production
+### Get you alchemy api key
+- Create a new embedded accounts configuration for an alchemy app in your [dashboard](https://dashboard.alchemy.com/accounts)
+- Replace the api key in the config.ts file
 
-Install command on Vercel:
-
-```
-corepack use pnpm@`pnpm -v` && pnpm i
-```
-
-You can see the results locally in production mode with:
-
-```shell
-pnpm build
-```
-
-```shell
-pnpm start
-```
-
-## :gear: Generating components
-
+### Run the app
 ```bash
-pnpm generate Button
+yarn dev
 ```
 
-Result (if you chose an atom component):
+Follow this [quick start guide](https://alchemotion.notion.site/Alchemy-Account-Kit-UI-Components-Alpha-Quickstart-0805fd3fb8ba4c15bfd88846d4ad53ea?pvs=74) for more details!
 
-```
-└── components
-      └── atoms
-        └── Button
-          ├── index.ts
-          ├── Button.stories.tsx
-          ├── Button.test.tsx
-          └── Button.tsx
-```
+## Learn More
 
-## 🤝 Contributing
+To learn more about Next.js, take a look at the following resources:
 
-1. Fork this repository;
-2. Create your branch: `git checkout -b my-awesome-contribution`;
-3. Commit your changes: `git commit -m 'feat: Add some awesome contribution'`;
-4. Push to the branch: `git push origin my-awesome-contribution`.
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## License
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-Licensed under the MIT License, Copyright © 2024
+## Deploy on Vercel
 
-See [LICENSE](LICENSE) for more information.
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
----
-
-Made with much :heart: and :muscle: by Mateusz Hadryś :blush: <a href="https://www.linkedin.com/in/mateusz-hadry%C5%9B/">My Contact</a>
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
