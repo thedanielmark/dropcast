@@ -36,11 +36,19 @@ This is a monorepo containing the front-end and contracts for Dropify.
 
 # Base
 
-1. Deployed Smart contracts - 
+1. Deployed Core Contract - https://base-sepolia.blockscout.com/address/0xEf942B3B34d0A3534CC8EeB25Bce5AB5395A475f#code 
 
 # Blockscout
 
+1. Dropcast Core - https://base-sepolia.blockscout.com/address/0xEf942B3B34d0A3534CC8EeB25Bce5AB5395A475f#code
+2. Dropcast Crosschain - https://sepolia-explorer.arbitrum.io/address/0x46028135B5d373E6a826fB532adF1ADc6A7659d2#code
+
 # Chainlink
+
+1. CCIP Implementation 1 - https://github.com/thedanielmark/dropcast/blob/app/blockend/contracts/DropifyCore.sol#L158
+2. CCIP Implementation 2 - https://github.com/thedanielmark/dropcast/blob/app/blockend/contracts/DropifyCrosschain.sol#L117
+3. Deployed Contract 1 - https://base-sepolia.blockscout.com/address/0xEf942B3B34d0A3534CC8EeB25Bce5AB5395A475f#code
+4. Deployed Contract 2 - https://sepolia-explorer.arbitrum.io/address/0x46028135B5d373E6a826fB532adF1ADc6A7659d2#code
 
 # Goldsky
 
