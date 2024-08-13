@@ -7,19 +7,22 @@ This is a monorepo containing the front-end and contracts for Dropify.
 - App: Next.js font-end application.
 - Contracts: Smart contracts on Optimism.
 
-## Gabriel Tasks
+## Problem
 
-1. Complete and Depoly Mocks - DONE
-2. Add test scripts and buttons in FE - DONE
-3. Add worldcoin verification in frontend - DONE
-4. Test Chainlink CCIP - DONE
-5. Test EAS attestations and implement Vaults - DONE
-6. Test Full flow for all chains - DONE
+**Airdrop Scams on X:** Social platforms, especially Twitter, are flooded with airdrop promotions, many of which are scams that distribute malicious links and exploit users.
 
-## Daniel Tasks
+**Victimization of Users:** A significant number of users fall prey to these scams, compromising their security and losing funds due to the deceptive nature of these airdrops.
 
-1. Frontend
-2. Goldsky
+**Secure Airdrops?:** Existing social media platforms lack a secure and reliable protocol for conducting legitimate airdrops, leaving users exposed to fraud.
+
+## Description
+
+
+**On-chain Attestations with EAS:** Each airdrop and claim is verified on-chain through Ethereum Attestation Service (EAS), providing transparency and trustworthiness to the process.
+
+**Sybil-proofing with Worldcoin:** Dropcast ensures a secure airdrop process by leveraging Worldcoin to prevent sybil attacks, ensuring that each airdrop is distributed fairly and securely.
+
+**Cross-chain via Chainlink CCIP:** Dropcast supports cross-chain airdrops using Chainlink CCIP, enabling seamless and secure transactions across different blockchain networks.
 
 # Worldcoin
 
@@ -65,6 +68,20 @@ This is a monorepo containing the front-end and contracts for Dropify.
 1. AccountKit Integration -https://github.com/thedanielmark/dropcast/blob/app/app/app/providers.tsx
 2. Sample Write Call - https://github.com/thedanielmark/dropcast/blob/app/app/app/components/ClaimAirdrop.tsx#L117
 3. Sample Read Call - https://github.com/thedanielmark/dropcast/blob/app/app/app/components/ClaimAirdrop.tsx#L152
+
+## Gabriel Tasks
+
+1. Complete and Depoly Mocks - DONE
+2. Add test scripts and buttons in FE - DONE
+3. Add worldcoin verification in frontend - DONE
+4. Test Chainlink CCIP - DONE
+5. Test EAS attestations and implement Vaults - DONE
+6. Test Full flow for all chains - DONE
+
+## Daniel Tasks
+
+1. Frontend
+2. Goldsky
 
 ## Contributors
 
