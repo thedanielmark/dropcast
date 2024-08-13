@@ -197,9 +197,8 @@ export default function ClaimAirdrop({ id }: { id: number | null }) {
     if (data != undefined && (data as any)[8] != "") {
       response = await fetch((data as any)[8]);
       tasks = await response.json();
-      setAirdropTasks(tasks);
+      setAirdropTasks(tasks.tasks);
     }
-    console.log("Tasks: ", response);
     setAirdropDetails(data);
 
     console.log("Airdrop data: ", data);
@@ -328,7 +327,7 @@ export default function ClaimAirdrop({ id }: { id: number | null }) {
             ...status,
             {
               error: true,
-              message: `You do not have the criteria am`,
+              message: `You do not have the criteria amount of farcaster followers`,
             },
           ]);
           return;
@@ -498,9 +497,9 @@ export default function ClaimAirdrop({ id }: { id: number | null }) {
       <div>
         <button
           className={`rounded-md bg-purple-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600 ${
-            activateClaimButton ? "" : "cursor-not-allowed opacity-50"
+            activateClaimButton && worldVerified ? "" : "cursor-not-allowed opacity-50"
           }`}
-          disabled={!activateClaimButton}
+          disabled={!activateClaimButton && worldVerified}
           onClick={async () => {
             const publicClient = createPublicClient({
               chain: baseSepoliaViem,
@@ -534,6 +533,13 @@ export default function ClaimAirdrop({ id }: { id: number | null }) {
 
             const tx = await client.writeContract(request);
             setTxHash(tx);
+            setStatus([
+              ...status,
+              {
+                error: false,
+                message: `Transaction ${tx} sent successfully`,
+              },
+            ]);
           }}
         >
           Claim Airdrop
@@ -548,6 +554,15 @@ export default function ClaimAirdrop({ id }: { id: number | null }) {
           Airdrop claimed Successfully ✅
         </Link>
       )}
+      {status.map((s, index) => (
+        <div key={index} className="p-5 break-all">
+          <div
+            className={
+              s.error ? "break-all text-red-700" : "break-all text-gray-900"
+            }
+          >{`[${index + 1}] ${s.message}`}</div>
+        </div>
+      ))}
     </div>
   );
 }
