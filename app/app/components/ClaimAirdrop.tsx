@@ -40,7 +40,7 @@ import Link from "next/link";
 
 init(process.env.NEXT_PUBLIC_AIRSTACK_API_KEY as string);
 
-export default function ClaimAirdrop() {
+export default function ClaimAirdrop({ id }: { id: number | null }) {
   const user = useUser();
   const { client } = useSmartAccountClient({ type: "LightAccount" });
   const readClient = createAlchemyPublicRpcClient({
@@ -180,43 +180,45 @@ export default function ClaimAirdrop() {
   };
 
   // function to get the airdrop details from the contract
-  const getAirdropDetails = async (airdropId: string) => {
-    const data = await client?.readContract({
+  const getAirdropDetails = async (aId: string) => {
+    console.log("AIRDRPO ID");
+    console.log(aId);
+    const data = await readClient?.readContract({
       abi: CORE_ABI,
       address: CORE_ADDRESS,
       functionName: "airdrops",
-      args: [airdropId],
+      args: [BigInt(aId)],
     });
 
-    // Fetching tasks from Pinata and setting it in state
-    // Get request
+    console.log(data);
     console.log("Fetching pinata data");
-    // const response = await fetch(data[8]);
-    // const tasks = await response.json();
-    // console.log("Tasks: ", response);
-    // setAirdropDetails(tasks);
+    let response: any;
+    let tasks: any;
+    if (data != undefined && (data as any)[8] != "") {
+      response = await fetch((data as any)[8]);
+      tasks = await response.json();
+      setAirdropTasks(tasks);
+    }
+    console.log("Tasks: ", response);
+    setAirdropDetails(data);
 
     console.log("Airdrop data: ", data);
   };
 
   useEffect(() => {
-    if (airdropId) {
+    console.log(id);
+    if (id != null) {
+      console.log("Getting Airdrop Details");
+      getAirdropDetails(id.toString());
+    } else {
       console.log("Getting Airdrop Details");
       getAirdropDetails(airdropId);
     }
   }, [airdropId]);
 
-  // function to get tasks from airdrop details
-  useEffect(() => {
-    if (airdropDetails) {
-      fetch(airdropDetails[8])
-        .then((response) => response.json())
-        .then((json) => setAirdropTasks(json.tasks));
-    }
-  }, [airdropDetails]);
-
   // function to complete the challenge
   const completeChallenge = () => {
+    console.log(airdropTasks);
     airdropTasks.forEach(async (task: any) => {
       console.log("Task: ", task);
       // Check if user holds required NFTs
@@ -237,9 +239,23 @@ export default function ClaimAirdrop() {
           .then((response) => {
             if (response.nfts.length < task.threshold) {
               console.log("Task verification failed");
+              setStatus([
+                ...status,
+                {
+                  error: true,
+                  message: `You do not have the required number of NFTs`,
+                },
+              ]);
               return;
             } else {
               console.log("Task verification success");
+              setStatus([
+                ...status,
+                {
+                  error: false,
+                  message: "Task Verification Success",
+                },
+              ]);
               setActivateClaimButton(true);
             }
           })
@@ -252,16 +268,26 @@ export default function ClaimAirdrop() {
         });
 
         console.log("Balance: ", balance);
-
         if (balance < task.threshold) {
           console.log("Task verification failed");
-          // TODO - Show error message
+          setStatus([
+            ...status,
+            {
+              error: true,
+              message: `You do not have the required number of ERC20s`,
+            },
+          ]);
           return;
         } else {
           console.log("Task verification success");
           setActivateClaimButton(true);
-
-          // TODO - GABRIEL: Transfer assets to user
+          setStatus([
+            ...status,
+            {
+              error: false,
+              message: "Task Verification Success",
+            },
+          ]);
         }
       }
       // Check if the user follows the required Farcaster ID using airstack
@@ -272,13 +298,24 @@ export default function ClaimAirdrop() {
         );
         if (!response) {
           console.log("Task verification failed");
-          // TODO - Show error message
+          setStatus([
+            ...status,
+            {
+              error: true,
+              message: `You do not follow the farcaster account required`,
+            },
+          ]);
           return;
         } else {
           console.log("Task verification success");
           setActivateClaimButton(true);
-
-          // TODO - GABRIEL: Transfer assets to user
+          setStatus([
+            ...status,
+            {
+              error: false,
+              message: "Task Verification Success",
+            },
+          ]);
         }
       }
       // Check if the user has the required number of followers on Farcaster
@@ -287,13 +324,24 @@ export default function ClaimAirdrop() {
         console.log("Followers: ", response);
         if (response < task.threshold) {
           console.log("Task verification failed");
-          // TODO - Show error message
+          setStatus([
+            ...status,
+            {
+              error: true,
+              message: `You do not have the criteria am`,
+            },
+          ]);
           return;
         } else {
           console.log("Task verification success");
           setActivateClaimButton(true);
-
-          // TODO - GABRIEL: Transfer assets to user
+          setStatus([
+            ...status,
+            {
+              error: false,
+              message: "Task Verification Success",
+            },
+          ]);
         }
       }
     });
@@ -318,26 +366,22 @@ export default function ClaimAirdrop() {
         id="airdropId"
         name="airdropId"
         type="text"
+        disabled={id != null}
         placeholder="69"
         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm sm:leading-6"
-        value={airdropId}
+        value={id != null ? id : airdropId}
         onChange={(e) => setAirdrpId(e.target.value)}
       />
-      <button
-        className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-        onClick={async () => {
-          const response = await readClient.readContract({
-            abi: CORE_ABI,
-            functionName: "airdrops",
-            address: CORE_ADDRESS,
-            args: [airdropId],
-          });
-          console.log(response);
-          setAirdropDetails(response);
-        }}
-      >
-        Get Airdrop Details
-      </button>
+      {id == null && (
+        <button
+          className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+          onClick={async () => {
+            await getAirdropDetails(airdropId);
+          }}
+        >
+          Get Airdrop Details
+        </button>
+      )}
 
       <div>
         {airdropDetails && (
@@ -477,7 +521,7 @@ export default function ClaimAirdrop() {
               abi: CORE_ABI,
               functionName: "claimAirdrop",
               args: [
-                airdropId,
+                id != null ? id : airdropId,
                 [
                   user?.address,
                   hexToBigInt(worldcoin.merkle_root),

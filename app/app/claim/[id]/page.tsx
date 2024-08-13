@@ -1,18 +1,19 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import ClaimAirdrop from "@/app/components/ClaimAirdrop";
+import LogIn from "@/app/components/LogIn";
 import { useUser } from "@account-kit/react";
-import LogIn from "../components/LogIn";
-import ClaimAirdrop from "../components/ClaimAirdrop";
 
-function CreatePage() {
+function CreatePage({ params }: { params: { id: string } }) {
+  const id = params.id;
   const user = useUser();
 
   return (
     <main className="flex min-h-screen flex-col items-center p-5 gap-4 justify-center">
       {user ? (
         <div className="flex justify-center w-full">
-          <ClaimAirdrop id={null} />
+          <ClaimAirdrop id={parseInt(id)} />
         </div>
       ) : (
         <>
