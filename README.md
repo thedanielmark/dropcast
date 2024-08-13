@@ -25,7 +25,46 @@ This is a monorepo containing the front-end and contracts for Dropify.
 
 1. IDKitWidget - https://github.com/thedanielmark/dropcast/blob/app/app/app/components/ClaimAirdrop.tsx
 2. On chain Verification - https://github.com/thedanielmark/dropcast/blob/app/blockend/contracts/DropifyCore.sol
-3. Deployed contract -
+3. Deployed contract - https://base-sepolia.blockscout.com/address/0xEf942B3B34d0A3534CC8EeB25Bce5AB5395A475f#code 
+
+# EAS
+
+1. Attestation Implementation - https://github.com/thedanielmark/dropcast/blob/app/blockend/contracts/DropifyCore.sol#L124
+2. Smart contract Deployment - https://github.com/thedanielmark/dropcast/blob/app/blockend/networks.js#L39
+3. Create Airdrop Schema - https://base-sepolia.easscan.org/schema/view/0xa47b91299da9a0bd968e0030568703a00ad0d851bd9c32efb98a53e39750ed42
+4. Claim Airdrop Schema - https://base-sepolia.easscan.org/schema/view/0x82ba92089cfdf9cd4340c24b35356aabf92e5bac94f264af89e060cb4896bbcd
+
+# Base
+
+1. Deployed Core Contract - https://base-sepolia.blockscout.com/address/0xEf942B3B34d0A3534CC8EeB25Bce5AB5395A475f#code 
+
+# Blockscout
+
+1. Dropcast Core - https://base-sepolia.blockscout.com/address/0xEf942B3B34d0A3534CC8EeB25Bce5AB5395A475f#code
+2. Dropcast Crosschain - https://sepolia-explorer.arbitrum.io/address/0x46028135B5d373E6a826fB532adF1ADc6A7659d2#code
+
+# Chainlink
+
+1. CCIP Implementation 1 - https://github.com/thedanielmark/dropcast/blob/app/blockend/contracts/DropifyCore.sol#L158
+2. CCIP Implementation 2 - https://github.com/thedanielmark/dropcast/blob/app/blockend/contracts/DropifyCrosschain.sol#L117
+3. Deployed Contract 1 - https://base-sepolia.blockscout.com/address/0xEf942B3B34d0A3534CC8EeB25Bce5AB5395A475f#code
+4. Deployed Contract 2 - https://sepolia-explorer.arbitrum.io/address/0x46028135B5d373E6a826fB532adF1ADc6A7659d2#code
+
+# Goldsky
+
+1. Subgraph config - https://github.com/thedanielmark/dropcast/blob/app/subgraph/gb-config.json
+2. Subgraph deployment - 
+
+# Farcaster
+
+1. Composer Action Implementation - https://github.com/thedanielmark/dropcast/blob/app/app/app/api/%5B%5B...routes%5D%5D/route.tsx
+2. Frames Implementation - https://github.com/thedanielmark/dropcast/blob/app/app/app/api/%5B%5B...routes%5D%5D/route.tsx
+
+# Alchemy
+
+1. AccountKit Integration -https://github.com/thedanielmark/dropcast/blob/app/app/app/providers.tsx
+2. Sample Write Call - https://github.com/thedanielmark/dropcast/blob/app/app/app/components/ClaimAirdrop.tsx#L117
+3. Sample Read Call - https://github.com/thedanielmark/dropcast/blob/app/app/app/components/ClaimAirdrop.tsx#L152
 
 ## Contributors
 
