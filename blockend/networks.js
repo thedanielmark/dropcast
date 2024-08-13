@@ -10,18 +10,6 @@ if (PRIVATE_KEY) {
 }
 
 const networks = {
-  ethereumSepolia: {
-    url:
-      "https://eth-sepolia.g.alchemy.com/v2/" +
-      process.env.ALCHEMY_API_KEY_SEPOLIA,
-    gasPrice: undefined,
-    nonce: undefined,
-    accounts,
-    verifyApiKey: process.env.ETHERSCAN_API_KEY || "UNSET",
-    chainId: 11155111,
-    confirmations: DEFAULT_VERIFICATION_BLOCK_CONFIRMATIONS,
-    nativeCurrencySymbol: "ETH",
-  },
   baseSepolia: {
     url:
       "https://base-sepolia.g.alchemy.com/v2/" +
@@ -36,7 +24,7 @@ const networks = {
     vaultAddress: "0xe92C2510fd0d1B3bA3ee57F16C1CFD572CBBEC58",
     chainlinkSelector: "10344971235874465080",
     ccipRouter: "0xD3b06cEbF099CE7DA4AcCf578aaebFDBd6e88a93",
-    coreAddress: "0x2b907FDBa04A77091Ffa1a89a78e8bbC47de90F0",
+    coreAddress: "0xEf942B3B34d0A3534CC8EeB25Bce5AB5395A475f",
   },
   arbitrumSepolia: {
     url:
