@@ -5,7 +5,7 @@ This is a monorepo containing the front-end and contracts for Dropify.
 ## Projects
 
 - App: Next.js font-end application.
-- Contracts: Smart contracts on Optimism.
+- Contracts: Smart contracts on Base.
 
 ## Problem
 
