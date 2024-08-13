@@ -19,7 +19,7 @@ const app = new Frog({
   },
 });
 
-app.frame("/drop/:id", async (c) => {
+app.frame("/claim/:id", async (c) => {
   const params = c.req.param();
   const airdropId = params["id"];
 
