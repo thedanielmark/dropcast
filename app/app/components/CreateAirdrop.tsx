@@ -125,6 +125,7 @@ export default function CreateAirdrop() {
             { name: "localAirdropId", type: "uint256" },
             { name: "chain", type: "uint64" },
             { name: "attestationId", type: "bytes32" },
+            { name: "creator", type: "address" },
             { name: "vaultAddress", type: "address" },
             { name: "tokenAmount", type: "uint256" },
             { name: "tokensPerClaim", type: "uint256" },
