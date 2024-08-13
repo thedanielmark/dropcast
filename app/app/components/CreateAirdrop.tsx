@@ -521,12 +521,30 @@ export default function CreateAirdrop() {
                 message: "Metadata uploaded successfully to IPFS: " + ipfsHash,
               },
             ]);
-
+            console.log(
+              "Metadata URL",
+              "https://amethyst-impossible-ptarmigan-368.mypinata.cloud/ipfs/" +
+                ipfsHash +
+                "?pinataGatewayToken=" +
+                process.env.NEXT_PUBLIC_PINATA_GATEWAY_KEY
+            );
+            console.log(
+              contractAddress as `0x${string}`,
+              tokenAmount,
+              tokensPerClaim,
+              "https://amethyst-impossible-ptarmigan-368.mypinata.cloud/ipfs/" +
+                ipfsHash +
+                "?pinataGatewayToken=" +
+                process.env.NEXT_PUBLIC_PINATA_GATEWAY_KEY
+            );
             const data = getCreateAirdropData(
               contractAddress as `0x${string}`,
               tokenAmount,
               tokensPerClaim,
-              metadataUrl
+              "https://amethyst-impossible-ptarmigan-368.mypinata.cloud/ipfs/" +
+                ipfsHash +
+                "?pinataGatewayToken=" +
+                process.env.NEXT_PUBLIC_PINATA_GATEWAY_KEY
             );
             console.log("DATA ", data);
             if (chain.id != 84532) {
